@@ -1,0 +1,321 @@
+# Day 17 – Azure Private Endpoint Demo
+
+Note: First open the Azure Private endpoint diagram.
+
+# Hello everyone, welcome back to the channel.
+
+# Today is Day 17 of our Azure Networking series.
+
+# And In this session, we'll perform a hands-on demo of Azure Private Endpoint and we will see that how we can securely access Azure App Service using a private IP address without exposing it to the public internet.
+
+OR
+
+In this session, we'll demonstrate Azure Private Endpoint and we will see that how to securely access an Azure App Service using a private IP address without exposing it to the public internet
+
+
+
+# But team, Before watching this video, I highly recommend to watch the theory session , from the playlist. which is Day 16 – Introduction to Azure Private Link
+
+
+In that session, You will learn:
+
+What is Azure Private Link
+what is Private Endpoint
+what is Private Link Service
+and more.
+
+That theoretical knowledge will make today's demo much easier to understand.
+ 
+ 
+# Team, before starting the demo, first, lets understand, what is Private Endpoint and Why do we need Private Endpoint?
+
+So team, Azure Private Endpoint creates a private network interface inside our Virtual Network with a private IP address.
+
+Using this private IP, our applications can securely access Azure services like Storage Accounts, SQL Database, Key Vault, or App Service without using the public internet.
+
+# So team, your first question might be: why do we use Azure Private Endpoint?
+
+So, we use "Azure Private Endpoint":
+> when our application requires full isolation from the public internet, such as for sensitive workloads or highly regulated data.
+> when we want traffic to flow entirely within the private network, ensuring complete confidentiality.
+> when we need to maintain strict security standards for applications that interact with services like databases, storage accounts, or other critical infrastructure. 
+
+# And your second question might be, Can we access app service through private endpoint from another Region of Azure resources?
+
+so the answer is:
+Yes, We can access an Azure App Service through a private endpoint from another region. Private endpoints allow secure connections to Azure resources from a virtual network, 
+whether in the same region or a different one, as long as the resource provider supports cross-region access. 
+Private endpoints use a private IP address within your virtual network to securely connect to Azure resources. we can deploy the private endpoint in a region different
+from our App Service.
+
+For Example:
+We can have a private endpoint in a virtual network in East US, and the App Service deployed in West US.
+The private endpoint would still provide secure access to the App Service in West US.
+
+
+# Team, Before jumping into the Azure Portal, let's first understand the architecture that we're going to implement in today's demo.
+
+In today's demo, we'll follow this architecture to deploy all the required Azure resources.
+
+#####
+
+Step 1: Suppose, On the left side, we have the administrator or Azure user.
+
+The user first signs in to the Azure Portal  over a secure HTTPS connection. This communication is encrypted using TLS, making it secure.
+
+And here, Instead of exposing the VM with a public IP, the admin connects to the VM through Azure Bastion.
+
+Azure Bastion provides secure RDP/SSH access directly from the browser.
+
+The VM remains private and doesn't require a public IP.
+
+Step 3: VM is inside the Virtual Network
+
+The VM is deployed in private subnet. which is Subnet-1 within the same Virtual Network (VNet).
+
+This VM will be used to test connectivity to the Azure App Service.
+
+Step 4: And this is the NSG associated with the subnet that protects VM-1.
+
+By using an NSG, we can:
+
+Allow RDP/SSH traffic only from Azure Bastion and prevent direct access from the Internet.
+
+Restrict application ports such as HTTP (80) and HTTPS (443), and allow access only from trusted sources.
+
+And Control inbound and outbound traffic and prevent unwanted network communication.
+
+Step 5: Private Endpoint is created for the Azure App Service inside the Virtual Network.
+
+The Private Endpoint receives a private IP address from the selected subnet.
+
+This private IP belongs to the Private Endpoint, providing a private and secure path to access the App Service.
+
+Step 6: Traffic flows through the Private Endpoint
+
+When VM-1 accesses the App Service, DNS resolves the App Service's hostname to the private IP address of the Private Endpoint.
+
+The VM sends traffic to that private IP.
+
+Azure then securely forwards the traffic from the Private Endpoint to the App Service over Microsoft's internal backbone network.
+
+The request never traverses the public internet.
+
+
+
+Final Explanation for Your Video-
+In a default Azure App Service deployment, users access the application through its public endpoint over the internet. When we create a Private Endpoint, Azure creates a network interface inside our Virtual Network, and the Private Endpoint receives a private IP address from the selected subnet. This private IP belongs to the Private Endpoint—not to the App Service itself. With Private DNS configured, the App Service's hostname resolves to the Private Endpoint's private IP address. As a result, traffic from resources inside the Virtual Network is directed to the Private Endpoint, which securely forwards the traffic to the App Service. The communication stays entirely on Microsoft's private Azure backbone network and never traverses the public internet. If public network access is disabled on the App Service, it can be accessed only through the Private Endpoint, providing a much more secure architecture.
+#####
+
+So team, In todays Demo, First, we'll create a Resource Group because.
+
+Then Next, we'll create a Virtual Network (VNet).
+
+And Within the Virtual Network, we'll enable Azure Bastion so that we can securely connect to our virtual machine without assigning it a public IP address.
+
+We'll also add a private subnet to host our Windows virtual machine.
+
+Then, we'll deploy a Windows VM inside that private subnet.
+
+After that, we'll create a Private Endpoint for an existing Azure App Service. The Private Endpoint will be deployed inside the same Virtual Network.
+
+Finally, we'll connect to the VM using Azure Bastion and verify that if we can securely access the App Service through the Private Endpoint using its private IP address.
+
+Once everything is configured, we'll test DNS resolution using nslookup and then access the Web App through its private endpoint.
+
+# Team, just a quick update. To save time, we'll use the existing App Service that we've already created.
+
+# Allright Team, lets move to Azure Portal and start the demo.
+
+# So team, this is my Azure portal console.
+
+# Team, Just a quick reminder before we get started— please like and subscribe to my channel to support up Thankyou.
+
+# So, lets start:
+
+1) Search RG and click on it. now click on create
+
+2. Next, we'll create a Virtual Network.
+
+Subscription: Select your subscription. In my case, it's already selected.
+Resource group: Select your resource group.
+Click OK.
+
+Instance details
+
+Name: Enter vnet-1.
+Region: Verify that the correct region is selected. In my case, it's already selected.
+
+Then click Next to proceed to the Security tab.
+
+In the Azure Bastion section, select Enable Azure Bastion.
+
+I am enabling a Bastion, because we are going to deploy VM in the private subnet, so to access the VM, We need Bastion.
+
+ Click on Next, and here lets, enable Azure Bastion.
+
+> This will be the name of the Bastion— you can change the name if you want.
+
+> Now, Click on Create a public IP for the Bastion then click on ok, because Bastion itself requires a public IP.
+
+> This will be the name of the Bastion public IP; you can provide any name.
+
+ click on Next
+
+> Team, here we need to provide subnets for the Virtual Network
+
+> We can either use the default subnet, which is 10.0.0.0/16, or we can define our own subnet IP and CIDR range.
+
+> If you click on the CIDR section, Azure allows you to choose the subnet CIDR based on your requirement.
+
+> So, I am going with the default VNet subnet.
+
+> Team, you can see here, Azure is creating these subnets by default:
+
+One is default subnet
+
+And One subnet for the Bastion
+
+
+> We can use the default subnets for our VM. or we can add new subnet for our VM from here.
+
+>  But team, no problem, lets add new subnet for our VM.
+
+Name: subnet-1 
+
+now click on save
+
+> And delete the default subnet because it is not required.
+
+Click on "Review + create" When validation passes, click on create to Create Vrtual Network.
+
+3) Now Create a private endpoint:
+
+> In the search box at the top of the portal, enter Private endpoint. Select Private endpoints.
+
+> Select + Create in Private endpoints.
+
+> Select your subscription.
+
+> Select your Resource group
+
+> Enter private-endpoint Name
+
+> Network Interface Name:	Leave the default of private-endpoint-nic.
+
+> Region:	Leave the default.
+
+> Select Next: Resource:
+
+Connection method:	Leave the default of Connect to an Azure resource in my directory.
+
+Subscription:	Select your subscription.
+
+Resource type:	Select Microsoft.Web/sites.
+
+Resource:	Select App service.
+
+Note: Team, we are using my existing app service. if you want to know, how to create app service, then please watch my video 
+in the playlist to get more knowledge about it.
+
+Now next is Target subresource:	Select sites.
+
+Select Next: Virtual Network.
+
+> Virtual network: Select the VNet that we created earlier.
+
+> Subnet:	Select vm-subnet ( that we created earlier for the VM)
+
+> Network policy for private endpoints:	Select edit to apply Network policy for private endpoints.
+
+> In Edit subnet network policy, select the checkbox next to Network security groups and Route Tables in the Network policies setting
+
+ for all private endpoints in this subnet pull-down.
+ 
+> Select Save.
+
+> Private IP configuration:	Select Dynamically allocate IP address.
+
+> Select Next: DNS I'm keeping the default DNS setting.
+
+> Select Next: Tags, and here you can aggaing tag if you want. i am not adding any tag.
+
+> then click on Next: Review + create.
+
+> Now click on  Create to create private endpoint.
+
+4) Now Next step is to create virtual machine in the private subnet.
+
+> In the portal, search for and select Virtual machines.
+
+> In Virtual machines, select + Create, then Azure virtual machine.
+> Select your subscription.
+> Select Resource group ( use Existing RG)
+> Virtual machine name:	Enter vm-1.
+> Region:	Select East US (that we created earlier)
+> Availability options:	Select No infrastructure redundancy required.
+> Security type:	Leave the default of Standard.
+> Image:	Select Windows Server 2022 Datacenter - x64 Gen2.
+> VM architecture	Leave the default of x64.
+> Size:	Select a size which you want.
+> Authentication type	Select Password.
+> Username	Enter azureuser.
+> Password	Enter a password.
+> Confirm password	Reenter the password.
+> Public inbound ports	Select None.
+
+> Select the Networking tab at the top of the page:
+Network interface:	
+Virtual network	Select: vnet-1.
+Select subnet-1
+Public IP:	Select None.
+NIC network security group:	Select Advanced.
+Configure network security group:	Select Create new.
+Enter nsg-1 for the name.
+Leave the rest at the defaults and select OK.
+Leave the rest of the settings at the defaults and select Review + create.
+Review the settings and select Create.
+
+8) Now team, final steps is to do the testing and  verify whether our Private Endpoint is working correctly.
+
+Login to VM through Bastion.
+
+open powershell and Run:
+
+nslookup webapp.azurewebsites.net
+
+The first thing lets check  DNS resolution.
+
+Run:
+
+nslookup webapp-1.azurewebsites.net
+
+Note: webapp-1.azurewebsites.net
+
+this is the default hostname that Azure automatically assigns to your App Service when you create it.
+
+Explain the output:
+
+Name:    webapp-1.privatelink.azurewebsites.net
+Address: 10.0.0.10
+Aliases: webapp-1.azurewebsites.net
+
+This is the default URL of my Azure App Service, which Azure automatically created when I deployed the App Service. Even after configuring a Private Endpoint, I still access the application using the same URL: webapp-1.azurewebsites.net. The only difference is that DNS now resolves this hostname to the Private Endpoint's private IP address instead of a public IP, allowing the traffic to stay within the Microsoft Azure backbone network
+
+
+"Alright team, that's all for today's demo."
+
+"In this session, we successfully created and configured an Azure Private Endpoint for an Azure App Service. We created a Virtual Network, enabled Azure Bastion, deployed a Windows virtual machine in a private subnet, configured a Private Endpoint, and finally verified that the App Service was accessible privately from the VM."
+
+"We also confirmed the configuration by using nslookup, which showed that the App Service hostname resolved to the Private Endpoint's private IP address. This proves that the traffic is routed through Azure Private Link over the Microsoft backbone network instead of the public internet."
+
+
+10) Ok everyone, thanks for watching my video, we will se in next video thankyou.
+
+
+
+
+
+
+
+

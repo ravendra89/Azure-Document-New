@@ -1,0 +1,403 @@
+# Day-15: Azure NAT Gateway Demo
+
+# First open the documents: Day 15 - Introduction to Azure NAT Gateway
+
+# Hello everyone, welcome back to the channel.
+
+# SO, todays is Day-15, and In this class, we will see that how to create and configure "Azure NAT gateway".
+
+# But team, before starting the demo, first, lets understand, what is Azure NAT Gateway and Why do we need Azure NAT Gateway?
+
+# First read the definition of the Azure NAT Gateway from the documents.
+
+Then, explain following point.
+
+# But team your question might be, why do we use Azure NAT Gateway?
+
+So team, We use Azure NAT Gateway to provide outbound Internet connectivity for resources in an Azure virtual network without requiring public IP addresses on each resource.
+
+Suppose we have a VM deployed in a private subnet. These VMs don't have public IP addresses because we don't want anyone on the internet connecting directly to them.
+
+But these VMs still need internet access—for example, to download Windows updates, install software packages, or call external APIs.
+
+That's exactly where Azure NAT Gateway comes in.
+
+By Using Azure NAT Gateway, the VM can initiate outbound communication to the Internet, but external traffic cannot initiate communication with the VM.
+
+# Lets understand Working of Azure NAT Gateway in the given diagram:
+
+Suppose this is Virtual Network.
+
+And Inside this VNet, there are two VMs Deployed in the private subnets without public IP address.
+
+Both subnets are connected to a single Azure NAT Gateway.
+
+Think of the NAT Gateway as the internet exit door for all private resources.
+
+Instead of every VM having its own public IP, all outbound traffic is sent through this single NAT Gateway.
+
+Now suppose this VM wants to download software updates.
+
+The VM sends a request to the internet.
+
+Since the VM doesn't have a public IP, the NAT Gateway replaces the VM's private IP with its own public IP address.
+
+This process is called Network Address Translation, or NAT.
+
+So, The internet only sees the NAT Gateway's public IP address, not the VM's private IP.
+
+When the internet sends the response back, it arrives at the NAT Gateway.
+
+The NAT Gateway keeps track of every outbound connection.
+
+It knows exactly which VM initiated the request, so it forwards the response back to the correct virtual machine.
+
+# But what happens if someone on the internet tries to directly connect to one of these virtual machines?
+
+The answer is—they can't connect to the VM.
+
+Azure NAT Gateway does not allow unsolicited inbound connections.
+
+Since the VMs don't have public IP addresses, and NAT Gateway only supports outbound translation, incoming traffic is automatically blocked.
+
+So you can see here in the diagram:
+
+✅ VM can initiate communication to the internet.
+
+✅ Internet can send back responses.
+
+❌ But, Internet cannot start a new connection to the VM. 
+
+# Now explain next point:
+
+# Ok team, now theory part is completed.
+
+# I also uploaded these documents note in my github repository.
+
+# So team, lets move to github account.
+
+# SO team this is my github account and If i open day 15 directory, here, you can find complete details related to this class.
+
+# Team, can clone this repository, I will provide the github link in the video description as well.
+
+# Team, before starting the demo on Azure NAT Gateway. Let's first understand the complete workflow diagram for todays demo.
+
+# So team, this is the simple diagram for todays demo.
+
+Step 1: 
+
+Suppose, On the left side, we have the administrator or Azure user.
+
+The user first signs in to the Azure Portal using HTTPS over port 443. This communication is encrypted using TLS, making it secure.
+
+Step 2:
+
+Inside the virtual network, Azure Bastion has its own dedicated subnet called AzureBastionSubnet.
+
+Azure Bastion also has a Public IP Address.
+
+The Azure Portal communicates securely with Azure Bastion over HTTPS (port 443).
+
+Step 3: 
+
+Here, we will use Azure Bastion to access the Virtual machine that we will deploy in the private subnet.
+
+Azure Bastion establishes the remote session to the virtual machine.
+
+For Windows Server→ by using RDP (3389)
+
+And for Linux Server→ by using SSH (22)
+
+This traffic remains inside the Azure Virtual Network.
+
+####
+Team, by using Azure Bastion, we can securely access virtual machines within the same Virtual Network (VNet) without opening RDP (3389) or SSH (22) ports in the VM's NSG.
+
+The reason is that Azure Bastion and the VM are part of the same Virtual Network (VNet). When you connect through Azure Bastion, the RDP or SSH session is established from within the VNet, not from the public Internet.
+
+Azure Bastion is deployed in the AzureBastionSubnet, it can communicate with any subnet within the same VNet. Azure automatically routes traffic between subnets, allowing Bastion to establish RDP or SSH connections to VMs anywhere in the virtual network.
+
+Team, I'll explain the default NSG rules after we deploy the virtual machine
+
+# Note: I'll explain the following at the VM's NSG level after the VM is created.
+
+By default, every Azure NSG contains the following rule:
+
+Priority	Rule	Action
+65000	AllowVNetInBound	Allow
+
+This default rule allows communication between resources within the same Virtual Network. Since both Azure Bastion and the VM are in the same VNet, the traffic is allowed automatically unless you create a custom NSG or firewall rule to block it.
+
+As you can see,  SSH (22) port 22 is not exposed to the Internet.
+
+
+####
+
+step 4:
+And this is the NSG associated with the subnet that protects VM-1.
+
+By using an NSG, we can:
+
+Allow RDP/SSH traffic only from Azure Bastion and prevent direct access from the Internet.
+
+Restrict application ports such as HTTP (80) and HTTPS (443), and allow access only from trusted sources.
+
+Control inbound and outbound traffic and prevent unwanted network communication.
+
+Team, important point is that if there is no NSG attached to the VM , Azure uses its default network security behavior.
+
+By default, Azure allows communication between resources inside the same Virtual Network (VNet) through the default NSG rules.
+
+Step 5:
+
+Now suppose the Virtual Machine needs to:
+
+Download Windows Updates
+Install packages
+Download software
+Connect to APIs
+Access Azure Storage
+
+The VM sends outbound traffic.
+
+So for this, we will deploy NAT Gateway so that the traffic is routed to the NAT Gateway.
+
+The NAT Gateway replaces the VM's private IP with its own Public IP.
+This process is called Source Network Address Translation (SNAT).
+
+The virtual machine keeps its private IP address.
+Before the traffic reaches the Internet, the NAT Gateway translates the source IP (and in this case, source ip is VM private Ip) to its public IP. External services only see the NAT Gateway's public IP.
+
+
+> so In this demo, first I will create RG. As you already know, every Azure resource must be created inside a Resource Group.
+  
+> Then, I will create VNet within the RG
+
+> And within VNet,  will will enable azure Bastion and we will also add one private subnet for VM.
+
+
+> After that, we will create NAT Gateway and associate it to Virtual machine private subnet. 
+
+As you know that NATGateway required public ip. so I will create and assign a public IP address to NAT gateway.
+
+
+> After that, we will deploy one Linux VM in the private subnet. and then, we will login to the VM and  will try to access the internet.
+
+# Ok team, lets go to Azure portal and start the demo.
+
+# So team, this is my Azure portal console.
+
+#Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel."
+
+# So, lets first create RG:
+
+1)So, Lets first create RG: search RG here and click on it.
+
+Click on create. here, subscription is already selected because, currently I have only single subscription.
+
+Now, mention the Resource Group (RG) name. You can use any name, such as  NATGW-RG
+
+Note: Team, don't be confused. Here, NATGW is short name for Resource Group. and RG is short name for NAT Gateway
+
+> Next is Region:  if you click here, you can find multiple regions. so, Select the region base on your requirement.
+
+Team, you should always select the region that is nearest to you.
+
+So, I am going with default which is EAST US.
+
+> click on next- to tag section and here, assign the tags for RG if you wants. i am not assigning tags for now.
+
+> Now, click on review + create
+
+> then finally click on create.
+
+> So team, RG is created. now click on go to RG.
+
+> So team this is our RG.
+
+2) Now Team next step is to create Virtual Network
+
+> In the portal, search  Virtual networks.
+
+> On the Virtual networks page, select + Create.
+
+>  subscription is aleady selected
+
+> Select Resource group	(that we created recently)
+	
+> VNet Name: Like- VNet-1
+
+> Region is already	Selected which is:  East US. 
+
+> Click on Next, and here lets, enable Azure Bastion.
+
+> This will be the name of the Bastion— you can change the name if you want.
+
+> Now, Click on Create a public IP for the Bastion then click on ok, because Bastion itself requires a public IP.
+
+> This will be the name of the Bastion public IP; you can provide any name.
+
+Note:  Team, We are enabling and deploying Azure Bastion because, we are going to create the VM in a private subnet.
+
+SO, to access the Private VM, we will require  Bastion, Or any jump box server or a VPN.
+
+However, Azure Bastion is most secure way to access the VM.
+
+And In real-world projects, Virtual Machine are deployed in private subnets, and access is provided via Bastion or VPN credentials.
+
+> Now click on Next.
+
+> Team, here we need to provide subnets for the Virtual Network
+.
+> We can either use the default subnet, which is 10.0.0.0/16, or we can define our own subnet IP and CIDR range.
+
+> If you click on the CIDR section, Azure allows you to choose the subnet CIDR based on your requirement.
+
+This is a very useful feature of Azure.
+
+
+> So, I am going with the default VNet subnet.
+
+> Team, you can see here, Azure is creating these subnets by default:
+
+One is default subnet
+
+And One subnet for the Bastion
+
+
+> We can use the default subnets for our VM. or we can add new subnet for our VM from here.
+
+>  But team, no problem, lets add new subnet for our VM.
+
+Name: subnet-1
+
+Now click on Add.
+
+> And delete the default subnet because it is not required.
+
+
+
+
+3) Next step is to Create a NAT gateway:
+
+> In the search box at the top of the portal, search NAT gateway and Select NAT gateways in the search results.
+
+> Click on "Select + Create".
+
+> Select your  subscription. in my it is already selected.
+
+> Select Resource Group	(that we created recently)
+
+> Select OK.
+	
+> NAT gateway name:	DEMO-NATGW
+
+> Region: SO it is already selected.
+
+> Availability Zone	- leave it default.
+
+> TCP idle timeout (minutes)-	Leave the default of 4.
+
+> click on  Next:  	Select Create a new public IP address.
+
+Name: NATGW-Public-IP
+Select OK.
+
+> Select the Review + create
+
+
+4) Now team, next step is to create  VM 
+
+Note: We are going to create VM in private subnet then i will access the VM using Bastion and will try to access internet.
+
+> In the portal, search for and select Virtual machines.
+
+> In Virtual machines, select + Create, then Azure virtual machine.
+	
+> Select your subscription.
+
+> Resource group:	Select RG 
+
+> Virtual machine name: like- VM-1
+
+> Region:	already selected.
+
+Note: Team, I'm not going to explain everything about Virtual machine , because we already have a separate video in this playlist for the VM.
+
+ please watch that video to get more knowledge about VM.
+
+
+
+> Security type: 	Leave the default 
+
+> Image	Select Ubuntu Server 22.04 LTS - x64 Gen2. 
+
+> VM architecture	Leave the default of x64.
+
+> Size:	Select a size. OR you can use default size.
+	
+> Authentication type	Select Password.
+
+> Username:	Enter azureuser.
+
+> Password:	Enter a password.
+
+> Confirm password:	Reenter the password.
+
+> Public inbound ports:	Select None. ( because, if we are using bastion, then no need to allow ssh port 22, we can access the server using bastion)
+
+> Click on next to Networking tab:
+
+> Virtual network: 	Select VNet 
+
+> Subnet:	Select vm-subnet
+
+> Public IP	Select None. because, we are going to deploy VM in private subnet.
+
+> NIC network security group: lets use default NIC or you can create new NIC from here.
+
+But team, lets update the value of default subnet if required. so click on edit.
+
+and here, we are not enable any inbound port, becasue it is not required for this demo.
+
+Also, SSH port is not requred, becae we are using Azure Bastion to access the VM.
+
+> Leave the rest of the settings at the defaults and select Review + create.
+
+
+5) Now final step is to  Test NAT gateway integration:
+
+
+
+go to VM- On the Overview page, select Connect, then select the Bastion tab.
+
+
+> now lets see, if we can able to ping google
+
+> so type: ping www.google.com
+
+now team, lets see if we are able to install nginx web server
+
+So team, The VM was able to download packages and install Nginx successfully, which confirms that the outbound traffic is passing through the Azure NAT Gateway.
+
+So team, we have successfully verified that the Virtual Machine can access the Internet
+
+Azure NAT Gateway is used only for outbound Internet connectivity.
+
+It allows private resources inside a Virtual Network to securely access the Internet.
+
+
+One of the biggest advantages is that we don't need to assign Public IP addresses to individual Virtual Machines.
+
+All outbound traffic leaves through a single static Public IP attached to the NAT Gateway.
+
+Since the Virtual Machines don't have Public IPs, nobody on the Internet can directly access them.
+
+Only outbound connections initiated by the VM are allowed.
+
+This follows security best practices.
+ 
+
+
+#  Ok everyone, we have successfully completed this demo, thanks for watching my video,  see you in the next video. thank you.
+

@@ -1,0 +1,540 @@
+# Day-18: Azure Service Endpoint Demo
+
+# First, open the Introduction to Azure Service Endpoint Document 
+
+# Today is Day 18 of our Azure networking series, and in this session, we will learn how to create and configure an Azure Service Endpoint.
+
+Before starting the demo, let's first understand what is Azure Service Endpoint, why we need it, and how it helps us to securely connect Azure resources.
+
+Note: First read the definition of the Azure Service Endpoint from the document.
+
+Now explain below point:
+
+Now your question might be, why do we use Azure Service Endpoints?
+
+So, we should use Azure Service Endpoints when we want to securely connect our virtual network (VNet) to Azure services—such as Storage Accounts, SQL Databases,
+or other services—over the Azure backbone network, and eliminating the need for public IP addresses. 
+Also, By using Azure Service Endpoints, we enhance security, improve performance, and simplify network configuration.
+
+For example: We can use " Azure Service Endpoints" to allow access for our virtual machines to talk with Azure services (like Storage account or SQL DB) safely
+and directly through the private network, instead of going over the internet. This makes the connection faster and more secure.
+
+
+# Now follow the document for next steps.
+
+#################################################################################################################################################################
+
+# In today's demo, we will implement Azure Service Endpoints using this architecture and we will see that how Azure securely connects a virtual machine to an Azure Storage Account without sending traffic over the public internet.
+
+And we will also see that how we will map drive to azure file share storage from the VM.
+
+# Explain the Diagram:
+
+"So Let's understand how Azure Service Endpoints work using this architecture diagram."
+
+Note: Team, first thing, please ignore these subnet and private in the diagram. becasue it can different.
+it is mentinoed here just for better uderstanding.
+
+Step 1: Virtual Network
+
+So, "On the left, we have an Azure Virtual Network or VNet.
+
+Inside this VNet, there are two subnets.
+
+The first subnet is the VM-Private-Subnet where our virtual machine is running.
+
+The second subnet is the AzureBastionSubnet, which contains Azure Bastion for secure access of the virtual machine."
+
+Explain:
+
+Virtual Machine is private.
+No public IP is required.
+Bastion is only used for secure access management such as (RDP/SSH).
+
+Step 2: 
+Azure Bastion allows administrators to connect to the VM securely through the Azure Portal.
+
+Since Bastion is inside the virtual network, we don't need to expose RDP or SSH ports to the internet."
+
+
+Step 3: 
+
+Now, let's look at the Service Endpoint.
+
+The arrow between the VM subnet and the Storage Account represents the Azure Service Endpoint.
+
+It allows the virtual machine to securely access the Storage Account directly from the authorized VNet subnet.
+
+The traffic stays on Microsoft's private backbone network instead of traveling over the public internet, providing better security and performance."
+
+
+
+Step 4: Storage Firewall rule
+ you can see here, Storage Account rules
+
+Explain each rule one by one.
+
+
+"The first Storage account firewall rule allows only the VNet subnet.
+
+Because this subnet has a Service Endpoint enabled, Azure allows the traffic.
+
+
+The second rule allows requests coming from our on-premises environment.
+
+These requests arrive through ExpressRoute or VPN and appear with known NAT IP addresses."
+
+
+Any request coming directly from the public internet is blocked.
+
+Even if someone knows the storage account URL, they cannot access it because the firewall rejects all public traffic."
+
+
+Step 8: Internet Access
+
+Notice that internet access is blocked.
+
+This means external users cannot access the storage account.
+
+But team, it does not mean the Storage Account no longer has a public endpoint.
+
+"It simply means that unauthorized internet traffic is blocked by the Storage firewall.
+
+"The public endpoint still exists, but access is restricted."
+
+Step 9: On-Premises
+
+
+"Now let's look at the on-premises environment."
+
+"Service Endpoints work only for Azure Virtual Networks."
+
+"They do not extend to on-premises networks."
+
+"So, if on-premises server wants to access this Storage Account—even over ExpressRoute or VPN—it cannot use the Service Endpoint."
+
+"Instead, the Storage firewall must allow the public NAT IP address used by the on-premises network."
+
+"That's why the diagram says Allow on-prem NAT IPs."
+
+
+Note: The on-premises connection shown here is optional and outside the scope of this demonstration. In this video, we're focusing only on how a virtual machine in an Azure VNet securely accesses an Azure Storage Account using a Service Endpoint
+
+# End-to-End Flow
+
+"Let's see how the communication works.
+
+The application running inside the virtual machine needs to access a blob in the storage account.
+
+The request leaves the VM.
+
+Since the subnet has a Service Endpoint enabled, Azure marks the request as originating from that trusted subnet.
+
+The request travels entirely over the Microsoft backbone network.
+
+The Storage Account firewall checks whether the subnet is allowed.
+
+Since it is authorized, Azure permits access and returns the requested data."
+
+# So team, Why Service Endpoint?
+The answer is:
+
+"Without a Service Endpoint, we would have to allow public IP addresses or open the storage account to the internet.
+
+With Service Endpoints:
+
+Only selected subnets can access the storage account.
+Public internet access can be blocked.
+Traffic stays on Microsoft's private backbone.
+Security is significantly improved.
+
+
+# And team, one common interview question is: Does Azure Service Endpoint create a private IP for the Storage Account?
+
+your Answer shoud be:
+
+"No.
+
+The Storage Account still uses its public endpoint.
+
+Service Endpoint only secures access by identifying requests coming from an authorized VNet subnet."
+
+Important point is that: Service Endpoints change the network route, not the IP address of the Azure service. The Storage Account still has a public IP, but Azure routes the traffic internally over the Microsoft backbone.
+
+
+
+###################################################################################################################################################################
+
+So team, In Today demo, I'll create a Resource Group, a Virtual Network (VNet) with a private subnet, and a Virtual Machine (VM) inside that private subnet. 
+
+However, we are not deploying Azure Bastion for secure access to the VM.
+
+For today's testing, we will use one of the features available in the Virtual Machine console: which is Run Command.
+
+Using Run Command, we will execute a PowerShell script to perform the required testing.
+
+Team, to access a private VM, we need to use Azure Bastion, a jump box server, a VPN, or any other suitable connectivity option available in Azure.
+
+but, if required, you can deploy azure bastion latter.
+
+Next, I'll create two Azure Storage Accounts and enable a Service Endpoint on the VM subnet. After that, I'll create a Service Endpoint Policy and configure it to control access to the Storage Accounts.
+
+Using this policy, I'll allow the VM to access only one Storage Account, while access to the second Storage Account will be blocked.
+
+Finally, I'll connect to the VM through Azure Bastion and test the configuration to verify that the VM can successfully access the allowed Storage Account and is denied access to the other Storage Account.
+
+###################################################################################################################################################
+
+# Team, I have also uploaded the complete document to my GitHub repository. So, let's move to my GitHub account.
+
+So team, This is my GitHub Account. If you open the Day-18: Azure Service Endpoint Demo, here, you'll find the complete document related to today's class, including all the concepts, and comparisons that we discussed.
+
+You can clone this repository for your reference. I'll also provide the GitHub repository link in the video description.
+
+# Alright team, Let go to Azure Portal and start our hands-on demo on Azure Service Endpoints.
+
+This is my Azure portal console.
+
+Before we get started, if you find this channel helpful, please take a moment to like this video and subscribe to the channel. Thank you!
+
+# So, lets start:
+
+1. Lets first create RG.
+
+2. now next step is to Create a virtual network 
+
+1) In the search box in the portal, enter Virtual networks. Select Virtual networks in the search results.
+
+2) Select + Create to create a new virtual network.
+Subscription:	Select your subscription.
+Resource group:	Select existing RG if you have other wise click on Create new to create RG.
+
+Select OK.
+
+3) Enter Vnet name like:  vnet-1.
+
+4) Select the Region as you want: I am Selecting EAST US.
+
+
+5) In the IP addresses tab, in Subnets, select the default subnet.
+
+Enter or select the following information in Edit subnet.
+
+> Name	Enter subnet-1.
+> Service EndpointsServices	: In the pull-down menu, select Microsoft.Storage.	
+> Select Save.
+> Select Review + Create.
+> Select Create.
+
+# Create a network security group and rules that restrict network access for the subnet:
+
+1) In the search box in the portal, enter Network security groups. Select Network security groups in the search results.
+
+2) Select + Create to create a new network security group.
+> Subscription:	Select subscription which we used in creation of VNet
+> Resource group: 	Select RG which we used in creation of VNet: test-rg.
+> Enter NSG name like:  nsg-1.
+> select the same Region which we used in creation of VNet: in my case Region is: EAST US.
+> Select Review + Create.
+> Select Create.
+
+3) Now, Create network security group rules:
+> In the search box in the portal, enter your Network security groups. which we have created recently. Select Network security groups in the search results.
+> In my case NSG Name is: nsg-1.
+> Expand Settings. Select Outbound security rules.
+> Select + Add to add a new outbound security rule.
+> In Add outbound security rule, enter or select the following information:
+
+Source:	Select Service Tag.
+Source service tag:	Select your VirtualNetwork which we have created recently.
+Source port ranges	Enter:  *.
+Destination:	Select Service Tag.
+Destination service tag	Select: Storage.
+Service	Select: Custom.
+Destination port ranges	Enter: *.
+Protocol:	Select Any.
+Action:	Select Allow.
+Priority:	Enter 100.
+Name:	Enter allow-storage-all.
+Select: Add.
+
+> Select + Add to add another outbound security rule:
+In Add outbound security rule, enter or select the following information.
+Source:	Select Service Tag.
+Source service tag	Select:  VirtualNetwork which we have created recently.
+Source port ranges:	Enter *.
+Destination:	Select Service Tag.
+Destination service tag:	Select Internet.
+Service:	Select Custom.
+Destination port ranges	Enter: *.
+Protocol:	Select Any.
+Action:	Select Deny.
+Priority:	Enter 110.
+Name Enter: deny-internet-all.
+Select: Add.
+
+> Expand Settings. Select Subnets.
+Select Associate.
+In Associate subnet, enter or select the following information.
+Setting	Value
+Virtual network	Select vnet-1 (test-rg).
+Subnet	Select subnet-1.
+Select OK.
+
+4)Now, lets create  Create two storage accounts and perform the testing.
+
+ search  Storage accounts. Select Storage accounts
+
+Select + Create to create a new storage account.
+
+In Create a storage account, enter or select the following information.
+
+Subscription:	Select Same subscription which you have used previously: your subscription.
+Resource group:	Select same RG which you have used previously: test-rg.
+Instance details:	
+Storage account name:	Enter allowedstorageaccount(random-number).
+Note: The storage account name must be unique. Add a random number to the end of the name allowedaccount.
+Region:	Select EAST US.
+Performance	Select: Standard.
+Redundancy:	Select Locally-redundant storage (LRS).
+Select Next until you reach the Data protection tab.
+In Recovery, deselect all of the options.
+Select Review + Create.
+Select Create.
+
+5) Repeat the previous steps to create another storage account with the following information.
+Storage account name	Enter deniedaccount(random-number).
+
+6) Now Create file shares storage in both the storage account:
+
+So first, Select allowedaccount Storage accounts in the search results.
+
+but you questing might be, what is Azure file share storage.
+
+Expand the Data storage section and select File shares.
+
+Select + File share.
+
+Azure File Share is a shared network folder hosted in an Azure Storage Account.
+
+Think of it as a Windows shared folder (SMB share), except it's hosted in Azure instead of on a file server.
+
+"If you're familiar with AWS, you can think of Azure Files share storage as being similar to Amazon EFS.
+ Both provide a managed shared file system that multiple virtual machines can mount and use. 
+ The main difference is that Azure Files share is a service within an Azure Storage Account, whereas Amazon EFS is a standalone storage service.
+ 
+So team, we will use PowerShell script, to mount the Azure File Share as a network drive (Z:) from our virtual machine. If the drive is mapped successfully, it confirms that the VM has both valid authentication and network access to the storage account."
+
+
+In New file share, enter or select the following information.
+Name	Enter file-share.
+Leave the rest of the settings as default and select Review + create.
+Select Create.
+
+7) Repeat the previous steps to create a file share in second storage account which is deniedstorageaccount(random-number).
+
+8)Now team next step is to, Deny all network access to storage accounts:
+Note: By default, storage accounts accept network connections from clients in any network. To restrict network access to the storage accounts,
+we can configure the storage account to accept connections only from specific networks. so, we are going to configure the storage account to accept connections only from the
+virtual network subnet that we created earlier.
+
+> So, select first Storage accounts which is "allowedaccount(random-number)."
+
+> Expand Security + networking and select Networking.
+
+> In Firewalls and virtual networks, in Public network access, select Enabled from selected virtual networks and IP addresses.
+
+> In Virtual networks, select + Add existing virtual network.
+
+> In Add networks, enter or select the following information.
+
+> Subscription Name:	Select your subscription.
+
+> Virtual networks:	Select vnet-1.
+
+> Subnets:	Select subnet-1.
+
+> click on Add.
+
+> click on Save.
+
+8) Now, Repeat the previous steps to deny network access to second storage account deniedstorageaccount(random-number).
+
+9) Now team, lets Apply policy to allow access to valid storage account:
+> SO, create a service endpoint policy. The policy ensures users in the virtual network can only access safe and allowed Azure Storage accounts. 
+This policy contains a list of allowed storage accounts applied to the virtual network subnet that is connected to storage via service endpoints.
+> Now, Create a service endpoint policy:
+> In the search box in the portal, enter Service endpoint policy. Select Service endpoint policies in the search results.
+Select + Create to create a new service endpoint policy
+Subscription:	Select your subscription.
+Resource group:	Select test-rg.
+Instance details:	
+Name:	Enter service-endpoint-policy.
+Location:	Select EAST US.
+Select Next: Policy definitions.
+Select + Add a resource in Resources.
+In Add a resource, enter or select the following information:
+Service	Select: Microsoft.Storage.
+Scope:	Select Single account
+Subscription:	Select your subscription.
+Resource group:	Select test-rg.
+Resource:	Select allowedstorageaccount(random-number)
+because,  we are allowing access only for allowedstorageaccount not for deniedstorageaccount
+Select Add.
+Select Review + Create.
+Select Create.
+
+10) Now, Associate a service endpoint policy to a subnet:
+Note: After creating the service endpoint policy, you'll associate it with the target subnet with the service endpoint configuration for Azure Storage.
+In the search box in the portal, enter Service endpoint policy. Select Service endpoint policies in the search results.
+
+Select service-endpoint-policy.
+
+Expand Settings and select Associated subnets.
+
+Select + Edit subnet association.
+
+In Edit subnet association, select vnet-1 and subnet-1.
+
+Select Apply.
+
+11) Now, final steps is to Validate access restriction to Azure Storage accounts:
+> So, To test network access to a storage account, lets deploy a VM in the same subnet.
+ search Virtual machines. Select Virtual machines in the search results.
+
+In the Basics tab of click on Create a virtual machine
+
+Subscription:	Select your subscription.
+Resource group:	Select same RG ehich we have used previously: test-rg.
+Instance details:	
+Virtual machine name: vm-1.
+Region:	Select EAST US .
+Availability options:	Select No infrastructure redundancy required.
+Security type:	Select Standard.
+Image:	Select Windows Server 2022 Datacenter - x64 Gen2.
+Size:	Select a size.
+Administrator account:
+Username:	Enter a username.
+Password:	Enter a password.
+Confirm password:	Enter the password again.
+Inbound port rules: Leave it default	
+Select Next: Disks, then select Next: Networking.
+
+In the Networking tab:
+
+Network interface:	
+Virtual network:	Select vnet-1.
+Subnet	Select: subnet-1 
+Public IP:	Select None.
+NIC network security group:	Select None.
+Leave the rest of the settings as default and select Review + Create.
+Select Create.
+
+#################################################################################################
+
+12) Now, validate the Service Endpoint Policy
+
+"So, we've configured the Service Endpoint, created a Service Endpoint Policy, and associated that policy with our VM's subnet and deployed a vm in the private subnet.
+
+ Now it's time to validate whether everything is working as expected."
+
+"We'll perform two tests. First, we'll verify that the VM can access the storage account that's allowed by the Service Endpoint Policy. Then, we'll try accessing another storage account that's not included in the policy. That request should be denied."
+
+
+13. "To make this testing easier, I've uploaded the PowerShell scripts to my GitHub repository. Let's open the repository and take a look."
+
+"Inside the 'Day-18: Azure Service Endpoint Demo' folder, you'll find the PowerShell scripts that we'll use for this validation. You can clone this repository and use these scripts in your own lab environment. I'll also provide the GitHub repository link in the video description."
+
+
+
+14. Explain the script
+
+"This PowerShell script uses the storage account key to authenticate with Azure Files and then attempts to mount the Azure File Share as a Z: drive from our virtual machine. If the drive is mapped successfully, it confirms that the VM is allowed to access the storage account."
+
+
+15. "Let's copy the script from the GitHub repository."
+
+Go to:
+
+Virtual Machines
+
+Select your VM that we created earlier: vm-1.
+
+Expand Operations. Select Run command.
+
+Select RunPowerShellScript
+
+Note: Team, have can also use Azure Bastion, or jump box server or VPN or any other spported method  to securely access the VM that is located in the private subnet.
+an then we can execute the PowerShell script directly.
+
+However, Azure provides a very useful feature called Run Command, which allows us to execute commands and scripts inside the VM directly from the Azure Portal without logging into the VM.
+
+So, for this testing, instead of connecting to the VM through Azure Bastion, or any other method,  we will use the Run Command feature to execute our PowerShell script and validate the storage account access."
+
+"Before running the script, we need to replace the placeholder with the Access Key of our allowed storage account."
+
+Go to: 
+
+Storage Account
+Access Keys
+Copy key1
+
+Paste it into the script.
+
+Run the script.
+result:
+
+If the drive map is successful, the output in the Output box looks similar to the following example:
+Name           Used (GB)     Free (GB) Provider      Root
+----           ---------     --------- --------      ----
+Z                                      FileSystem    \\allowedaccount.file.core.windows.net\fil..
+
+
+Note: "As you can see, the Z: drive has been created successfully. This means the VM was able to authenticate using the storage account key and successfully mount the Azure File Share."
+
+"Since this storage account is included in our Service Endpoint Policy, the request is allowed, which confirms that our policy is working as expected." 
+
+
+16)next step is to Validate access to the denied storage account
+
+so, let's perform the same test with another storage account that is not included in the Service Endpoint Policy."
+
+Go to: Github account
+copy the PowerShell scripts
+go to vm-1 then Run Command remove this script and paste powershell script here.
+
+Replace:
+
+Storage account name
+Storage account key
+
+go Denied Storage Account
+Access Keys
+Copy key1
+
+Return to vm:
+
+Run the script.
+
+output resoult:
+
+New-PSDrive : Access is denied
+At line:1 char:1
++ New-PSDrive -Name Z -PSProvider FileSystem -Root "\\deniedaccount8675 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++ CategoryInfo          : InvalidOperation: (Z:PSDriveInfo) [New-PSDrive], Win32Exception
++ FullyQualifiedErrorId : CouldNotMapNetworkDrive,Microsoft.PowerShell.Commands.NewPSDriveCommand
+
+
+"This time, the script fails with an 'Access is denied' error."
+
+"Notice that we're using the correct storage account key, so authentication isn't the problem. The request is denied because this storage account isn't included in our Service Endpoint Policy. As a result, Azure blocks access even though we have valid credentials."
+
+And, The drive map is denied because of the service endpoint policy that restricts access to the storage account which is deniedaccount(random-number)
+
+# Final conclusion
+
+"This completes our validation. The VM can successfully access the storage account that's allowed by the Service Endpoint Policy, while access to the storage account that's not included in the policy is denied. This confirms that the Service Endpoint Policy is enforcing access exactly as intended."
+
+
+16) So, team, we have successfully completed this demo, thanks for watching my vedio, we will see in next real time video thanks.

@@ -1,0 +1,224 @@
+# Day 16 – Introduction to Azure Private Link
+
+# First open the documents: Day 16 – Introduction to Azure Private Link
+
+Hello everyone, welcome back to the channel.
+
+Today is Day 16, and in this class, we will discuss and understand Azure Private Link.
+
+Azure Private Link is an important Azure networking feature that provides private connectivity to Azure services and customer-owned services without using the public internet.
+
+Azure Private Link mainly consists of two components: Private Endpoint and Private Link Service.
+
+In this session, we will understand both of these components in detail, including how they work, their architecture, and when to use them.
+
+
+# Video opening:
+
+Suppose, you have an Azure Storage Account or Azure SQL Database. By default, these services are accessed through public endpoints.
+Even if authentication is secure, your traffic is still using a public endpoint.
+
+But what if your organization wants all communication to happen privately, without exposing resources to the internet?
+
+This is where Azure Private Link comes into the picture.
+
+Azure Private Link is an Azure networking service that allows private connectivity between your Virtual Network and Azure services or your own services using private IP addresses.
+
+Key points to explain:
+
+Communication happens through the Microsoft backbone network
+No traffic goes through the public internet
+Services are accessed using private IP addresses
+Provides secure connectivity for PaaS services
+
+
+For example, instead of accessing Azure SQL Database using a public endpoint:
+
+Azure Private Link creates a private endpoint inside your VNet, and your application communicates with SQL Database using a private IP address.
+
+# Now start with documents.
+
+# So team, First, What is Private Link?
+
+
+# Private Endpoint Architecture Explanation
+
+Now let's understand how Azure Private Endpoint works with a real architecture diagram.
+
+The main goal of a Private Endpoint is to allow applications to access Azure services privately using a private IP address, instead of accessing them through a public endpoint.
+
+Step 1: Explain the Environment
+
+Here we have an Azure Virtual Network called VNet-1. Inside this VNet, we have two subnets:
+
+1. Azure Bastion Subnet
+
+2. Subnet-1 which is Application Subnet
+
+1. Azure Bastion Subnet
+
+The first subnet contains Azure Bastion. Azure Bastion provides secure remote access to virtual machines without exposing the VM directly to the internet.
+
+As we know that Azure Bastion service required Public IP. so this is the public ip attached to Azure Bastion service.
+
+2. Subnet-1
+
+The subnet-1 contains our virtual machine, VM-1, and a Private Endpoint.
+
+
+# Left side, The user connects to Azure Portal over HTTPS. Azure Bastion receives this connection through port 443 using its public IP address.
+
+Then:
+
+After authentication, Azure Bastion creates an RDP or SSH connection to the virtual machine inside the VNet.
+
+Important point is that:
+
+The VM itself does not require a public IP address. This improves security because the VM is not directly exposed to the internet.
+
+#################
+And this is the NSG associated with subnet that protect the resources in the subnet.
+
+By using an NSG, we can:
+
+Allow RDP/SSH traffic only from Azure Bastion and prevent direct access from the Internet.
+
+Restrict application ports such as HTTP (80) and HTTPS (443), and allow access only from trusted sources.
+
+Control inbound and outbound traffic and prevent unwanted network communication.
+
+Team, important point is that if there is no NSG attached to the VM , Azure uses its default network security behavior.
+
+By default, Azure allows communication between resources inside the same Virtual Network (VNet) through the default NSG rules.
+
+Step 3: Explain Private Endpoint
+
+Now move to the right side:
+
+So, let's understand the Private Endpoint part.
+
+Explain:
+
+The Private Endpoint is a network interface created inside our VNet. It receives a private IP address from the subnet.
+
+
+Now, the application running on VM-1 needs to communicate with Azure Web App.
+
+The Private Endpoint creates a network interface inside our VNet and gets a private IP address.
+
+When VM-1 accesses the Web App, the request goes to the private IP address of the Private Endpoint instead of going to the public endpoint of the Web App
+
+# Explain Complete Traffic Flow
+
+So team, Basically:
+
+The user first connects to Azure Portal and accesses VM-1 using Azure Bastion. Once connected to VM-1, the VM communicates with Azure Web App through the Private Endpoint.
+
+The Private Endpoint provides a private IP address inside the VNet. Because DNS resolves the Web App name to this private IP, the communication does not use the public internet.
+
+The traffic stays within the Azure backbone network and reaches the Web App privately.
+
+I hope you now have a better understanding of how Azure Private Endpoint architecture works, including how a resource inside the VNet can securely access an Azure service using a private IP address without going through the public internet
+
+# Now next Private Link service: First read the definition.
+
+Then explain the Diagram.
+
+Now team, lets understand the Azure Private Link Service in the given diagram.
+
+
+So team, In the Private Endpoint architecture, we were consuming an existing Azure service like Web App, Storage, or SQL Database privately.
+
+But what if we have our own application running in Azure and we want our customers or partner organizations to access that application privately?
+
+In that scenario, we use Azure Private Link Service.
+
+1. If you see here, On the right side, we have the Provider Network. This is the organization that owns the application or service.
+
+The provider has an application running behind an Azure Standard Load Balancer.
+
+Important point is that:
+
+Private Link Service requires the service to be behind an Azure Standard Load Balancer.
+
+For example, a SaaS company hosts its application on Azure Virtual Machines. They don't want customers accessing the application over the public internet, so they publish it using Azure Private Link Service.
+
+2. Then next:
+
+The provider creates an Azure Private Link Service and connects it to the frontend IP configuration of the Standard Load Balancer.
+
+
+3. Now Move to the left side:
+
+So, On the left side, we have the Consumer Network. This is the customer who wants to access the provider's service.
+
+The consumer creates a Private Endpoint inside their own VNet and connects it to the provider's Private Link Service
+
+4. Note:
+"When the consumer application sends a request, the request goes to the Private Endpoint using a private IP address."
+
+"Azure Private Link then securely transfers the traffic over the Microsoft backbone network to the provider's Private Link Service."
+
+"The Private Link Service forwards the request to the Standard Load Balancer, which distributes traffic to the backend servers."
+
+5. Explain the Microsoft Backbone Network
+
+"The important point here is that the communication between the consumer and provider does not travel through the public internet."
+
+Explain:
+
+"Traffic stays on Microsoft's private backbone network, providing secure private connectivity between different Azure networks."
+
+6. Explain Approval Process
+
+And team:
+
+"When a consumer creates a Private Endpoint connection to a Private Link Service, the provider can approve or reject the connection request."
+
+This approval mechanism gives the service owner control over who can access their service.
+
+7. Simple Real-World Example
+
+Use this example:
+
+"Suppose, a payment company has an internal API hosted on Azure. Many banking customers need to consume this API, but the company does not want to expose the API publicly.
+
+The payment company creates a Private Link Service.
+
+Each bank creates a Private Endpoint in its own Azure VNet.
+
+Now banks can securely access the API using private connectivity without using the public internet."
+
+8. Final Summary Line for Your Video
+
+
+"So, Azure Private Link Service is mainly used by service providers who want to expose their own applications privately. The provider publishes the service using Private Link Service, and consumers connect to it using Private Endpoints. The communication happens securely over the Microsoft backbone network without exposing the service to the public internet."
+
+9. A simple way to remember for interviews:
+
+Private Endpoint = Consumer side (I want to access a service privately)
+Private Link Service = Provider side (I want to expose my service privately)
+
+This diagram is the perfect example of Private Link Service because the service owner is publishing their own application behind a Standard Load Balancer.
+
+
+# Now team next is: Difference between Azure Private Endpoint and Azure Private Link Service?
+Explain it.
+
+# Team, in the upcoming video, we'll learn about Azure Service Endpoints. Before that, it's important to understand the "differences between Azure Service Endpoint and Azure Private Link", as well as the differences between "Azure Private Endpoint and Azure Service Endpoint". These are very common interview questions, so make sure you understand these concepts clearly.
+
+So lets understand the difference:
+
+# Team, I have also uploaded the complete document to my GitHub repository. So, let's move to my GitHub account.
+
+So team, This is my GitHub Account. If you open the Day 16 – Introduction to Azure Private Link directory, you'll find the complete document related to today's class, including all the concepts, and comparisons that we discussed.
+
+You can clone this repository for your reference. I'll also provide the GitHub repository link in the video description.
+
+Alright, team, that's all for today's class. In the upcoming videos, we'll perform hands-on demos for Azure Private Endpoint and Azure Service Endpoint separately, so you'll get a practical understanding of both concepts.
+
+Thank you everyone for watching this video. If you found it helpful, don't forget to like, share, and subscribe to the channel so you don't miss the upcoming Azure networking sessions.
+
+See you in the next video. Thank you!
+
+
