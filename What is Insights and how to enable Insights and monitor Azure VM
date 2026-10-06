@@ -1,0 +1,238 @@
+# Hello everyone, my name is Ravendra Tiwari, and welcome back to my channel!
+
+# Todays, we will discuss and demostrate one of Azure monitor feature which is- Insights
+
+# But, before starting the demo lets first understand about Insights feature in the azure monitor.
+
+# So, go to azure portal, and search here- monitor. team this is Azure monitor console. All the monitoring services available here. 
+You can  use Azure Monitor to manage and monitor all resources centrally.
+
+# On the left-hand side, you can see various options such as: Alerts, Metrics, Logs and Insights.
+
+And if you click on Insights- here you can see that Insight feature is available for- Appliction, VM, Storage Account, Containers, Networks, Azure Cosmos DB
+And Key vaults.
+
+And if you scroll down little bit, here you can find Log Analytics workspace.
+
+And apart from this, if you click on setting- here you can see Diagnostic settings and DCR.
+
+Todays, we will use and enable Insights feature for the Virtual machine.
+
+But, before starting the demo, lets understand about Insights, DCR, and Log Analytic workspace. because in todays demo, we will use these monitoring services
+to monitor Azure VM.
+
+# So lets start with Insights.
+
+#Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+So team, If you want Basic monitoring such as, Identify issues related to operating system performance - including CPU and disk utilization - available memory,
+and network performance by collecting a predefined, basic set of key performance counters. then you can enable VMinsights feature.
+this monitoring service making it faster to begin monitoring the health and performance of your virtual machines.
+ 
+VM insights provides a quick and easy method for getting started monitoring the client workloads on your virtual machines and virtual machine scale sets.
+It displays an inventory of your existing VMs and provides a guided experience to enable base monitoring for them. 
+It also monitors the performance of your virtual machines and virtual machine scale sets by collecting data on their running processes and dependencies on other resources.
+ 
+VMinsight, basically use to monitor VM guest Data and its supports Windows and Linux operating both.
+
+Note: Once you enable VM Insights, it will create a Data Collection Rule (DCR) and install the Azure Monitor Agent on the VM.
+This agent collects common performance counters for the client operating system and sends them to the Insights Metrics table in the Log Analytics workspace.
+
+> Now your question should be, what is Log Analytics workspace?
+
+So, Log Analytics workspace is a data store service, we can collect any type of log data from all of your Azure and non-Azure resources and applications. 
+Workspace configuration options let you manage all of your log data in one workspace to meet the operations, analysis, and auditing needs of different personas
+in your organization through:
+1) Azure Monitor features, such as built-in insights experiences, alerts, and automatic actions
+2) Other Azure services, such as Microsoft Sentinel, Microsoft Defender for Cloud, and Logic Apps
+3) Microsoft tools, such as Power BI and Excel
+4) Integration with custom and third-party applications
+ 
+# Now lets understand, DCR(data collection rule):
+
+Data collection rules (DCRs) define data collection from the Azure Monitor Agent and are stored in your Azure subscription. 
+For VMs, DCRs define data such as events and performance counters to collect, and specify locations such as Log Analytics workspaces to send the data.
+A single VM can be associated with multiple DCRs, and a single DCR can be associated with multiple VMs.
+
+#And what is Azure Monitor Agent?
+The Azure Monitor Agent is responsible to collects monitoring data from the guest operating system of Azure and hybrid virtual machines (VMs). 
+It delivers the data to Azure Monitor for use by features, insights, and other services, such as Microsoft Sentinel and Microsoft Defender for Cloud.
+
+# Ok team now theory part is completed, now lets do the demo.
+
+# Team, either we can enable VMInsight from here or we can also enable insight feature from the VM individually. lets me first see how to enable insights feature from the VM.
+
+# Go to VM, so team this is my existing Windows VM, if you dont have please create one.
+Note: need to use Windows VM.
+
+# So, If you click on Insights, you'll see an option to enable it. Once you click Enable, you'll be prompted to either select an existing DCR (Data Collection Rule) 
+or create a new one. and here Log analitic workspace is already selected- you can simply click on configure to enable insight feature for the VM.
+
+# But, I am not enabling the VM Insights feature from here, because we have the Azure Monitor service available. This service consolidates all monitoring tools into a single place.
+# Lets go back to Monitor console.
+
+# # So, before enabling the VMInsight, lets first create "Log Analytics workspaces" because this is required when we create DCR to store the data.
+
+# Ok, search- Log Analytics workspaces and click on it- now click on create.
+select and mention the required detail here. such as- subscription, RG. and mention the name the the Log analytic workspace.
+Location is already selected- now click on review + create- ok now click on create to create "Log Analytics workspaces"
+So team, Deployment is in progress, lets wait for some time.
+Ok now, deployment is completed.
+
+# Now, again Lets back to Monitor console.
+
+And, click on "virtual machines" under the Insights tab- then, click on "configure insights"
+
+This tab includes all machines that don't have VM insights enabled & Any machines that have Azure Monitor agent installed.
+
+If the Insights is enabled then our VM listed in the under the monitored section. and if insight is not enabled, VM will be show in the not monitored section.
+you can see here, our VM is showing in the not-monitored section. once we enabled insights, it will show in the monitored section.
+ 
+Also, If a virtual machine has the Log Analytics agent installed but not the Dependency agent, it will be listed as not monitored.
+
+> Select Enable next to any machine that you want to enable. If a machine is currently not running, you must start it to enable it.
+
+> On the Insights Onboarding page, select Enable.
+
+> Now here, Subscription is already selected, and for DCR, you can use default one or create new one.
+
+> So, i am creating new- click on "Create New"- now mention the DCR name.
+
+> Enable guest performance- is already enabled.
+ guest means os level performance.
+ Basically, guest performance refers to the metrics and data collected from within the virtual machine's operating system, providing insights into
+ the performance and health of the applications, components, and processes running inside the VM.
+ 
+> Enable processes and dependencies (Map): Lets enabled it.
+
+> But team, is is optional feature, if you want then you can enable it  or you can skip it.
+
+Note: Team if you are using Linux VM, make sure to use supported OS version, because it is not supported for some the Linux os version.
+
+> Processes refer to the list of the running active (like nginx, sqlserver etc.) on a VM.
+
+Its Show CPU, memory, and network usage by each process.
+Helps to identify unusual processes.
+Useful for troubleshooting performance issues on the VM.
+
+> And Dependencies refer to the network connections and interactions of the VM with other machines, services, or processes— whether on-premises, in Azure, or external.
+
+Its Shows inbound/outbound connections from the VM.
+
+Visualizes dependency maps between services and servers.
+
+Helps to identify bottlenecks, latency, and unusual connections
+
+> What is a Dependency Map?
+
+The Dependency Map is a visual tool in Azure Monitor for VMs that displays how your VM is connected to other systems.
+
+What It Shows:
+
+Your VM and all the processes running on it.
+
+The outbound and inbound connections of each process.
+
+Remote machines or endpoints the VM talks to.
+
+Connection metrics like:
+
+Latency
+
+Connection count
+
+Failure rate
+
+Note: Once we enabled Processes and Dependencies, it will install Dependency agent on the VM. and  Network connectivity will be allowed for monitoring traffic.
+
+> Dependency agent:
+Dependency Agent collects data about processes running on the virtual machine and their external process dependencies.
+ Updates include bug fixes or support of new features or functionality.
+
+> And you can see here, default "Log Analytics workspaces" is already selected, but i want to use my 
+ Log Analytics workspaces that we created recently.
+
+> ok so select the Log Analytics workspaces.
+
+> Now, click on create and then click on configure.
+
+> Here in the notification tab- you can see here deployment is in progress. lets wait for some time to complete.
+
+> Now, deployment is completed and we have successfully enabled VMinsights.
+ 
+> Now let's check if VM Insight is enabled.
+
+Go to the Monitor console → VM Insights → Overview.
+
+Here, you can see that VM Insight is enabled, and this is the Data Collection Rule (DCR) that we created when I was enabling VM Insight.
+
+> click on DCR under the Settings section. Here, you can see the DCR that we created earlier.
+
+> Select your subscription here. in my case, it is already selected.
+
+> if you click on Log Analytics workspaces, here you can see the Log Analytics workspaces that we created earlier.
+
+> Let’s verify if the Azure monitor agent is installed:
+
+> Go back to the VM console → click on Extensions + applications.
+
+> Here, you can see that the Azure Monitor Agent is installed.
+
+> Ok team, now let's go back to the Monitor console and see how we can monitor and check the performance and utilization of the VM.
+
+> So, click on Virtual machine under the Insights tab- and click on performance
+
+> On the Top N Charts tab, if you have more than one Log Analytics workspace, you can select the workspace that is configured for the Insights.
+ you can see performance counters for:
+CPU Utilization %
+Available Memory
+Bytes Sent Rate
+Bytes Receive Rate
+Logical Disk Space Used %
+
+> By default, the charts show performance counters for the last hour. By using the TimeRange selector, you can query for historical time ranges of up to 30 days
+ to show how performance looked in the past.
+
+> And Selecting the pushpin icon in the upper-right corner of a chart pins it to the last Azure dashboard you viewed.
+ From the dashboard, you can resize and reposition the chart. Selecting the chart from the dashboard redirects you to VM insights and loads the correct scope and view.
+> if you click on "Top N List" -here you can see your VM- and you can monitor the resources base on the requirement, like, if you want to see the cpu utilization, you can select
+here CPU. same things for other performance counters.
+
+> click on it to Get more visibility into the health, performance and network dependencies of your virtual machines.
+
+> Also, if you click on performance details you can find more information about the VM resources.
+> And if you click on "or resources details" it will redirect to you VM.
+> Ok team, now go back to the previous dashboard. And disable the Azure dashboard.
+> Now, On the right side, if you click here, you can also create a dashboard.
+
+> Now next feature is, if you Select  Top N List view. This list view shows the resource utilization for a performance metric by individual VM.
+suppose if you have miltiple VM, then you can see that VM in the list, It also shows which VM is trending the highest.
+To view the resource utilization by individual VM and see which machine is trending with highest utilization, select the Top N List tab.
+The Top N List page shows the top 20 machines sorted by the most utilized by 95th percentile for the metric CPU Utilization %.
+ 
+To see more machines, select Load More. The results expand to show the top 500 machines.
+
+> You can switch to the Aggregated Charts tab to view the performance metrics filtered by average or percentiles measured.
+You can also change the granularity of the charts within the time range by selecting Avg, Min, Max, 50th, 90th, and 95th in the percentile selector.
+
+# Team, you can also, View performance directly from an Azure VM.
+Lets see hot wo View performance directly from an Azure VM.
+> go to your VM, In the left-hand navigation menu, expand the Monitoring section, then select Insights.
+> Switch to the Performance tab.
+> Here you can see the Performance insights and performance utilization charts.
+
+# One important thing that i want to share that You can not create alerts for the metrics provided by VM insights.
+VM insight provides an in-depth view of VM health, performance trends, and dependencies.
+if you want to create Alert for the metrics, you can watch my different video in the playlist.
+
+# so team, we have successfully completed this demo.
+
+# Thanks for watching my video, we will meet in next video, thanks.
+
+
+
+
+
+
+
+

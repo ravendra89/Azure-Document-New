@@ -1,0 +1,243 @@
+# Hello everyone, my name is Ravendra Tiwari, and welcome back to my channel!
+
+# Today, we will learn about the Azure Automation Account, and we will use it to perform a real-time demo.
+
+# Team, this is a very important service in Azure. If you are familiar with AWS, AWS Systems Manager is similar to the Azure Automation Account.
+
+# But, before starting the demo, lets first understand about About Azure Automation account.
+
+Note: open the document and explain it.
+
+# Azure Automation account Digram.
+
+> Here you can see Heterogeneous support. what does mean by Heterogeneous support?
+
+It means that its work across Windows and Linux physical servers and virtual machines outside of Azure, on your corporate network, or other cloud provider.
+It delivers a consistent way to automate and configure deployed workloads and the operating systems that run them. by enabling The Hybrid Runbook Worker feature
+ of Azure Automation account.
+ 
+# Okay, now let's go to the Azure portal and start the demo.
+
+Note: Team, in this real-time demo, we will create a Resource Group (RG), because as you already know, an RG is a mandatory service required to create any other Azure resources.
+Next, I will create one Virtual Machine (VM) for testing purposes.
+After that, I will create an Azure Automation Account, and within the Automation Account, we will create a PowerShell-based Runbook.
+
+Basically, we will create a PowerShell script to start and stop an Azure VM at a scheduled time.
+Finally, we will execute the Runbook to perform the testing.
+
+Team, in real-world job scenarios, you will often get a chance to work on this type of task.
+ For example, suppose you have a development or testing environment VM and you want to stop the VM when it is not in use—such as outside working hours.
+In that case, we can automatically start and stop the VM based on a defined schedule.
+
+# Team, now your question should be:
+Why do we create an Azure Automation Account before creating a runbook?
+
+This is the default behavior in Azure—before creating a runbook, we must first create an Automation Account.
+
+This concept is similar to an Azure Storage Account, However, purposes of Automation Account are different.
+For example, in Azure Storage, when we create Blob Storage, we must first create a Storage Account.
+
+Similarly, an Azure Automation Account acts as a container and execution environment for runbooks.
+
+We can think of an Automation Account as a workspace plus an execution engine that provides:
+
+A place to store runbooks
+
+The runtime to execute them (PowerShell, Python, Graphical)
+
+Authentication (Managed Identity, Run As accounts)
+
+An Automation Account also allows us to configure and use shared assets such as:
+
+Credentials
+
+Variables
+
+Certificates
+
+Connections
+
+Modules (Az, AzureAD, and custom PowerShell modules)
+
+Scheduling and logging
+
+
+# Let’s Start the Demo.
+# Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+# Ok, Go to the Azure portal and create a RG and virtual machine (VM) so that we can perform our testing using an Azure Automation account.
+
+Step 1: Create a Resource Group (RG)
+
+First, I am creating a Resource Group because, as you already know, an RG is a mandatory service before creating any resources in Azure.
+
+Search for Resource Group and click on Create.
+
+Step 2: Create a Test Virtual Machine
+
+Now, let’s create a test VM.
+
+Search for Virtual Machine and click on Create.
+
+Step 3: Create an Azure Automation Account
+
+Now, team, let’s create an Azure Automation account.
+
+Search for Automation Account and click on Create.
+
+Select the same Resource Group that we used while creating the VM.
+
+Create the Automation account.
+
+Step 4: Create a Runbook
+
+Go to the Automation Account. Under the Process Automation section, click on Runbooks.
+
+A runbook is similar to an AWS Systems Manager Run Command.
+
+Click on Create a Runbook.
+
+Provide a name for the runbook.
+
+Select the runbook type.
+
+I am selecting PowerShell, but you can also select Python or any other available option.
+
+Select the Runtime version and click on Create to create the runbook.
+
+Step 5: Add PowerShell Script to Stop the VM
+
+Team, I have created two PowerShell scripts—one to stop the VM and another to start the VM. These are very simple PowerShell scripts.
+
+First, copy the script used to stop the VM and paste it into the runbook editor.
+
+Replace the Subscription ID, Resource Group name, and VM name, then click Save and Publish.
+
+Step 6: Assign Permissions to the Automation Account
+
+The last step is to provide permissions to the Automation account so it can execute the runbook and stop the VM.
+
+Go to the Automation Account → Account Settings → Identity.
+
+You will see that the System-assigned identity is already enabled.
+
+We only need to assign a role to this Automation account.
+
+You can also enable a User-assigned identity instead of a System-assigned identity, but for this demo, I am using the System-assigned identity.
+
+Click on Azure role assignments, then click Add role assignment (Preview).
+
+Select the Scope.
+
+If you want to assign the role at the subscription level, select Subscription.
+
+If you want to assign it at the Resource Group level, select Resource Group.
+
+I am selecting Resource Group scope.
+
+Choose the subscription and the Resource Group.
+
+When selecting a role, it is always best practice to follow the principle of least privilege.
+
+Instead of Owner, I am selecting Virtual Machine Contributor, as this permission is sufficient for this task.
+
+Select the role and click Save.
+
+Step 7: Now it’s time to test.
+
+Go to the runbook we created recently.
+
+Click Start and then Yes to confirm.
+
+Go to the VM overview page.
+
+In the Status section, the VM status will change from Running to Stopped after some time, once the runbook execution is completed.
+
+Click Refresh, and you will see that the VM status has changed to Stopped.
+
+If you go back to the runbook, you will see that the runbook status is Completed.
+
+Here, you can also view the output, any errors, warnings, logs, and exceptions.
+
+step 8: Start the VM Using a Runbook
+
+Now, team, let’s see how to start the VM using a runbook.
+
+Create another runbook to start the VM by following the same approach.
+
+This time, use the PowerShell script to start the VM.
+
+The runbook is created.
+
+We do not need to assign the role again because we are using the same Resource Group and the required permissions are already assigned.
+
+Click Start Runbook, then go to the VM overview page and wait for some time.
+
+You will see that the VM status changes from Stopped to Running.
+
+This is how you perform this task using Azure Automation.
+
+Team, we have seen how to execute a runbook manually. However, our task is to schedule the runbook so that it can stop and start the VM based on a schedule.
+
+To do this, go to the Automation Account, click on Shared Resources, then click on Schedules, and finally click on Add a schedule.
+
+However, this feature is also available directly within the runbook itself, so let’s schedule it from the Runbook console.
+
+First, go to Start Runbook, click on Link to schedule, then click on Schedule, and select Add a schedule.
+
+Here, enter the name of the schedule. Do not mention the start date and time, and select the appropriate time zone.
+
+Now, we want to execute the runbook every day, so select Recurring. If you want to run the runbook only once, you can select Once.
+
+I am selecting the Recurring option.
+
+Under Recur every, select how often you want the runbook to repeat. You can choose hour, day, week, or month.
+
+I want to run this runbook once a day, so I am selecting Day and setting the value to 1.
+If we choose:
+
+Recur every: 1
+
+Unit: Day(s)
+
+For Set expiration, select No.
+
+Now click Create to create the schedule.
+
+Apply the same steps to the stop runbook.
+
+Based on the scheduled time, the Azure Automation Account will automatically execute the runbooks to stop and start the VM.
+
+# Now, let’s walk through the Azure Automation Account features and understand their use cases.
+
+So, go to Azure automation account. and team here you can see various option are available. we have already discussed some of the available feature in the bigning of the video.
+
+1. Access Control (IAM): Access Control (Identity and Access Management), we can use this feature to control who can do what in our Automation Account.
+
+Access Control (IAM) lets you assign roles to users, groups, or service principals so they can perform specific actions in your Automation Account. For example, you might want someone to only view runbooks but not edit them, or allow a service to start/stop VMs.
+
+2. Now next is- Process Automation.
+
+Process Automation. we aleredy use runbook .
+
+Hybrid worker groups: we can use the Hybrid Runbook Worker feature of Azure Automation to run runbooks directly on the on-premises machine or other cloud provider VM.
+
+3. Shared automation: 
+
+in the Shared automation, we have several option available.
+
+•	Schedules - Trigger Automation operations at predefined times.
+•	Modules - Manage Azure and other systems. You can import modules into the Automation account for Microsoft, third-party, community, and custom-defined cmdlets and DSC resources.
+•	Python packages - Support Python 2 and 3 runbooks for your Automation account.
+•	Credentials - Securely store sensitive information that runbooks and configurations can use at runtime.
+•	Connections - Store name-value pairs of common information for connections to systems. The module author defines connections in runbooks and configurations for use at runtime.
+•	Certificates - Define information to be used in authentication and securing of deployed resources when accessed by runbooks or DSC configurations at runtime.
+•	Variables - Hold content that can be used across runbooks and configurations. You can change variable values without having to modify any of the runbooks or configurations that reference them.
+
+4. Here in the monitoring secetion, we can monitor the automation account and setup the alert.
+
+
+# Note: Team, you can perform any type automation task supported by Azure automation account. and you can used the Autoamtion account feature base on your requirement.
+
+# Okay team, this demo is now completed. Thank you for watching my video. See you in the next video.
+

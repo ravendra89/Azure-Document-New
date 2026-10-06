@@ -1,0 +1,345 @@
+# How to create alert and monitor Activity log for Azure subscription.
+
+# Hello everyone, my name is Ravendra Tiwari, and welcome back to my channel!
+
+# Today, we will learn how to monitor and create alert for Activity log of Azure subscription.
+
+# We will also see that how to create Log Analytics workspace and store, view and queries the activity log of Azure subscription.
+
+# But, before starting the demo, lets first understand about Activity log.
+
+Note: open the document and explain it.
+
+# Okay, now let's go to the Azure portal and start the demo.
+
+Note: Team, I explained the difference between Activity Log and Service Health because, in my next video, we will be learning about Service Health.
+
+# Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+
+# So, before creating an alert for Activity Logs at the subscription level, let's first see how we can view and analyze the Activity Logs.
+
+# Search for "Monitor" and click on it.
+
+> On the left-hand side, click on Activity Log.
+
+> Here, we can select the subscription that we want to monitor. Right now, I have only one subscription, so it is already selected.
+
+> Event Severity: We can also filter by Event Severity. Currently, it's set to All.
+
+> Time Span – You can filter the time window. Let's select Last 1 Hour.
+
+> Team, as you can see, there are no records right now because no activity has occurred in the subscription in the last 1 hour.
+
+> Lets change the Timestamp to last month
+
+> Team, now you can see the activity log for the subscription.
+
+> If you click on any event, You can see details like:
+
+Resource
+
+Operation Name
+
+Timestamp
+
+Event Initiated By
+
+> If you don't see any events after applying the timestamp filter, try creating a resource — for example, a Resource Group (RG) 
+ and wait a moment for the activity event to appear.
+
+> Here, Select Add Filter to add more properties to the filter.
+
+> You can also access activity log events by using the:
+
+Get-AzLog cmdlet to retrieve the activity log from PowerShell.
+ OR
+by using the az monitor activity-log to retrieve the activity log from the Azure CLI.
+OR
+by using the the Azure Monitor REST API to retrieve the activity log from a REST client.
+
+# View change history:
+
+For some events, you can view the change history, which shows what changes happened during that event time.
+
+Select an event from the activity log you want to look at more deeply. Select the Change history tab to view any changes on the resource up to 30 minutes before 
+and after the time of the operation.
+
+# Now, what we want to do is to create alerts based on the Activity Log, so that whenever an event occurs at the subscription level, we receive an alert.
+
+So, to do that, we need to create a Log Analytics workspace. This will allow us to store Activity Logs in the workspace and create alerts based on them.
+
+Additionally, using the Log Analytics workspace, we can view, query, and explore the logs, as well as set up alerts.
+
+> so, to do that, search Log Analytics workspace- and click on create- select subscription- click on create RG or you can select existing RG as well.
+ mention the name the workspace- select your region click on review + create - now click on create to create "Log Analytics workspace"
+
+Now, go to monitor- click on insight-click on "Log Analytics workspace"- and here your can see that "Log Analytics workspace" has been created.
+
+> Now go to  your subscription again- click on activity log- and click on "Export Activity Log"
+
+By using "Export Activity Log" setting, we can export the activity log to log analytics workspace.
+
+> Now, we need to "Add diagnostic setting" 
+But lets first understand about diagnostic setting.
+> So team, diagnostic setting is a monitoring service or feature in Azure.
+
+Azure Diagnostic Settings assist you in gathering, monitoring, and analyzing logs and metrics for your Azure resources — such as Virtual Machines, Storage Accounts,
+Key Vaults, or Network Security Groups — in one location.
+
+> In this demo, we are going to enable diagnostic setting for the activity logs of Azure subscription.
+
+> Once we enable this feature, it will collect the Azure subscription activity log and it to the destination of your choice.
+
+> we can choose destion, such as: Log Analytics workspace, storage account, event hub, or other partner solution.
+
+> But your question should be, Why we are enabling and Configuring Azure Diagnostic Settings?
+
+> So team, there are several benifits of Azure Diagnostic Settings?
+> Such as: 
+
+1. In this demo, we want to Monitor Azure Activity Logs.
+So, With diagnostic settings, we can monitor every operation performed on our Azure resources:
+
+such as:
+Who created, deleted, or updated a VM?
+When was the security group rule updated?
+Who changed a storage account or initiated an autoscale policy?
+
+2. Troubleshoot Operational Issues
+
+> Azure Diagnostic Settings can record:
+Failed logins or access denials
+API call errors
+VM startup or shutdown failures
+Network problems or latency warnings
+
+So, I explained some important usecase of the Azure Diagnostic Settings.
+
+# Team, you can see the workflow of Azure Diagnostic Settings in the digram as well.
+
+> you can see here, Azure Diagnostic Settings collect these data such as- Activity Logs, Resources Logs, platform metrics and send it to listed destion of your choice.
+
+> And after that you can see the activity log in activity log viewer or you can explore the platform metrics in metrics explorer.
+
+> Now go back to portalband lets enable it:
+
+> So, click on 'Add diagnostic setting'. Provide a name for the diagnostic setting — you can use any name.
+
+Basically, when working with diagnostic settings, there are two main parts:
+
+1. Categories – Select the types of logs you want to collect.
+
+2. Destination details – Choose where you want to store the logs.
+
+> Suppose we want to export logs related to all the given categories — let's select all the categories.
+
+> Now, choose the destination where you want to store the logs.
+
+You have several options, such as:
+
+Send to Log Analytics workspace
+
+Archive to a storage account
+
+Stream to an event hub
+
+Send to a partner solution
+
+> In this case, I want to store the logs in a Log Analytics workspace, so select that option, and then choose the Log Analytics workspace we created earlier.
+
+> Now, click on Save.
+
+> After that, close this tab — you'll now see the diagnostic setting we just created listed here.
+OR
+Again click on "Export Activity Log"- you will see the diagnostic setting we just created listed here.
+
+> Now, team, please note that it may take a few minutes for logs to appear in the Log Analytics workspace. So let’s wait for a while.
+
+> Once some time has passed, go back to the Log Analytics workspace and click on it.
+
+> Next, click on Logs.
+
+> If you click on the three dots, you’ll see that the scope is set to our subscription.
+Note- some time scope is selected to Log analytic workspace it self, then you can change scope to subscription.
+
+> Now, we need to write and run a query.
+
+> Team, data is retrieved from a Log Analytics workspace using log queries written in Kusto Query Language (KQL).
+
+> Kusto Query Language (KQL) is the query language used in Azure Monitor, specifically for querying logs stored in Log Analytics workspaces.
+
+> For example, type AzureActivity and click Run.
+
+> Now team, here you can see the log in the result section. this is the data related to subscription activity.
+
+> you can expant any of the log to see the data in details.
+
+> Lets view a count of activity log records for each category, use the following query, so type- 
+
+ AzureActivity
+| summarize count() by CategoryValue
+
+and click on run- now you can see the count of the categories.
+
+> Now, lets retrieve all records in the administrative category, so type- 
+
+AzureActivity
+| where CategoryValue == "Administrative"
+
+> Here, you can see all the records related to the Administrative category.
+
+> Note: Team, if you're not familiar with KQL (Kusto Query Language), you can refer to the KQL documentation available online for help.
+
+Note: There is no data ingestion charges for activity logs. Retention charges for activity logs are only applied to the period extended past.
+the default retention period of 90 days. You can increase the retention period to up to 12 years.
+
+Activity log data in a Log Analytics workspace is stored in a table called AzureActivity. The structure of this table varies depending on the category of the log entry.
+Now, team, let's create a Dashboard and set up Alerts for the Activity Log.
+
+> First, let's create the dashboard.
+
+Type AzureActivity in the query window and click Run.
+
+Once the results are displayed, click on Save, and then click Pin to Azure dashboard.
+
+In the pop-up, select Create new, enter a name for your dashboard, and then click Create and pin.
+
+The dashboard is now created. Let's view it.
+
+Open a new tab, go to Dashboard, and select the dashboard you just created.
+
+Now, you should see the Activity Log visualized on your dashboard.
+
+Step 2: Customize the Dashboard
+
+Team, from here, you can:
+
+Edit the dashboard layout
+
+Run additional log queries
+
+if you click on export- you can download the dashboard.
+
+Click on this icon to rename the dashboard. For example, name it: Azure-subscription-activity-logs-dashboard.
+Now, click on Update, then click on Save.
+
+You can customize your dashboard to suit your monitoring needs.
+
+Now, team, let’s see how to create an alert for the activity log.
+
+Go back to the Log Analytics workspace.
+
+Run the following query: AzureActivity
+
+Click on the three dots on the top right corner, then select New alert rule.
+
+Signal name is already selected as Custom log query,
+because we are using a custom query.
+
+Leave the value as default:
+
+Measure type: Table rows
+
+Aggregation type: Count
+
+Aggregation granularity: 5 minutes
+
+Scroll down and here:
+
+Operator: Greater than
+
+Threshold value: 10 (This means we will get an alert whenever the count of rows is greater than 10.)
+
+Frequency of evaluation: 5 minutes (Means, we want this query to runs every 5 minutes.)
+
+> Now, click on next to Action tab.
+
+> In Azure Monitor, an action refers to what happens when an alert is triggered. So, I want to send alert on my email when when an alert is triggered.
+
+> So here. we can create new action group OR  we can use existing action group.
+
+> So i am going to create Action group.
+
+> Click on create Action group- select Subscription and RG
+
+> Region- right now, by default region is selected to Global- but we can select our region.
+
+> What does "Global Region" mean in Azure Monitor Action Group?
+
+The "Global Region" refers to the global scope of certain Azure services that are not tied to a specific Azure region (like East US, West Europe, etc.).
+
+> In the context of Action Groups, "Global Region" means:
+
+The action group is not region-specific and can be used across all regions and resources in your Azure subscription/tenant.
+
+> Why is this useful?
+
+You can reuse the same action group (e.g., for email, SMS, webhook alerts) across different VMs or services located in different Azure regions.
+It's managed centrally, and you don’t have to create multiple action groups for each region.
+
+> so, i am selecting my region which is- EAST US
+
+> Now mention the Action group name- such as- my-action-group
+
+> And display name for the action group- lets give the name - test-activity-log-action-group
+
+> Now click on next to Notification tab- now, click on Notification type and Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- here, you can also Enable the common alert schema- i am not enabling this feature for now.
+
+> Now, click on ok.
+
+> here specify the notification name like- activity-log-alert
+
+> Now click on next to Action tab.
+
+> Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create
+
+> mention the Email subject- activity-log-alert
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+
+> choose the Severity which you want. i am selecting critical
+
+> mention the alert rule name- activity-log-rule
+
+> click on review + create- then click on create to create alert rule.
+
+> Go to Monitor → click on Alerts → then click on Alert rules. Here, you should see the alert rule that we created recently.
+
+> So, this is how you can view, analyze and configured alert for Activity log of the subscription.
+
+Note: Team, you can follow these steps to view, analyze and configured alert for ant type of Activity log.
+
+# Ok team, this demo has been completed now. thanks for watching my video, see you in next video. thanks.
+
+#####################################################################################
+
+# Create Service Health alerts in the Azure portal for subscription and tenant
+
+
+https://learn.microsoft.com/en-us/azure/service-health/alerts-activity-log-service-notifications-portal
+
+
+# create Action group
+https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups?wt.mc_id=rmskilling_az_usage_email_gdc
+ 
+# What is the difference between resource health and service health in Azure?
+The Azure status page and the Service Health dashboard provide updates on service issues that affect many customers, such as problems in an entire Azure region.
+ In contrast, Resource Health gives more detailed information about issues that affect only your specific resources.
+ 
+
+

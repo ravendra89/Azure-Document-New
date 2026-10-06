@@ -1,0 +1,1040 @@
+# Hello everyone, my name is Ravendra Tiwari, and welcome back to my channel!
+
+# Today, we will learn how to create and configure alerts for Virtual Machine, CPU, memory, and disk Metrics from the Azure monitor service.
+# We will also learn, how to configure Log for the VM as well.
+
+# Today, we will learn How to Collect guest logs and metrics data from an Azure virtual machine.
+ You will also learn how to create and configure alerts for both logs and metrics.
+
+# But, before starting the demo lets understand some important point related to monitoring.
+
+# So, the first thing your question should : What are metrics, and how many types of metrics are there in Azure Monitor?
+
+It's very simple to understand that, Metrics are data about the performance of our systems or VM.
+
+They are numerical values representing the performance or health of an application, service, or Azure resource over time.
+
+Metrics are collected at regular intervals and are essential for tracking performance, detecting issues, and triggering alerts based on defined thresholds.
+For Examples, CPU usage, RAM, disk, and virtual machine (VM) availability.
+
+# There are multiple types of metrics supported by Azure Monitor:
+
+Note: Team lets understand the metrics type in the diagram.
+
+Open the documents. explain first in the document and then explaing below points:
+
+1) Native metrics that use tools in Azure Monitor for analysis and alerting.
+And the type of Native metrics is: Platform metrics & Custom metrics
+Lets understand one by one:
+
+> First is- Platform metrics: Platform metrics are collected from Azure resources. They require no configuration and have no cost.
+
+
+> Second is- Custom metrics: Custom metrics are collected from different sources that you configure including applications and agents running on virtual machines.
+
+Note:As we know that, there are two important types of data involved in a VM: which is VM host data(which include VM host metrics and logs) and
+VM guest data (which include VM guest metrics and logs).
+
+> So, VM host data is a platform metrics.
+If you want to Monitor the stability, health, and efficiency of the physical host where our  VM is running. then you can choose VM host Data option and
+VM host data is available without additional setup.
+Examples of platform metrics include CPU usage, network throughput, and disk activity (such as Disk I/O operation), VM availability, System load.
+> So, VM host data- This data relates to the Hyper-V (hypervisor), meaning that physical host, that managing the guest operating systems,
+ and includes information about CPU, network, and disk utilization Meaning that, VM host data comes through Hyper-v where our VM is deployed.
+
+> And VM guest data is a Custom Metrics.
+If you want to Identify issues related to operating system performance - including CPU and disk utilization - available memory, and network performance 
+then you can choose and configure VM guest metrics.
+
+However, VM guest data is not available by default, we have to do some additional steps. which we will see after some time.
+VM guest data lets you analyze and troubleshoot the performance and operational efficiency of workloads running on your VMs.
+ 
+To monitor VM guest data, you need to install Azure Monitor Agent on the VM and set up a data collection rule (DCR).
+
+> VM guest data: This data relates to the operating system and applications running inside the virtual machine.
+
+# The difference between VM host and VM gust data is:
+
+Host-level data gives you an understanding of the VM's overall performance and load, while the guest-level data gives you visibility into the applications, components,
+and processes running on the virtual machine and their performance and health.
+ 
+For example, if you’re troubleshooting a performance issue, you might start with host metrics to see which VM is under heavy load,
+and then use guest metrics to drill down into the details of the operating system and application performance.
+ 
+Note: One important thing: By default, VM host data is available without additional setup.
+
+However, VM guest data is not available by default, we have to do some additional steps. which we will see after some time.
+VM guest data lets you analyze and troubleshoot the performance and operational efficiency of workloads running on your VMs. 
+To monitor VM guest data, you need to install Azure Monitor Agent on the VM and set up a data collection rule (DCR).
+
+And last metrics type is:
+
+2) Prometheus metrics are collected from Kubernetes clusters including Azure Kubernetes service (AKS) and use industry standard tools for 
+analyzing and alerting such as PromQL and Grafana.
+
+
+# Team, one important point I want to share:
+
+If you want Basic monitoring such as, Identify issues related to operating system performance - including CPU and disk utilization - available memory,
+and network performance by collecting a predefined, basic set of key performance counters. then you can enable VMinsights feature.
+
+Azure provides a feature called VM Insights, and by enabling this feature:
+
+Azure will automatically install the Azure Monitor Agent on the VM.
+
+It will also create a default DCR for collecting guest performance data (i.e., metrics).
+
+These metrics are sent to Azure Monitor Metrics, where they can be viewed using Metrics Explorer and used to create metrics-based alerts.
+
+However,if you want detail monitoring about metrics and Logs, such as- Monitor application performance and events, resource consumption by specific applications and processes, 
+and operating system-level performance and events. then you have to Install Azure Monitor Agent on the VM and set up a DCR.
+When you create DCR:
+
+The Azure Monitor Agent will be installed on the VM (if it's not already).
+
+You can configure the DCR to collect both logs and metrics.
+
+In this case, VM Insights is not required, since your custom DCR handles the data collection.
+
+You'll then be able to monitor guest metrics and logs, and create alerts based on it.
+
+# Basically To monitor the guest operating system and workloads on an Azure virtual machine,
+we need to install Azure Monitor Agent and create a data collection rule (DCR) that specifies which data to collect.
+
+Usually, VM insights installs the agent and collection performance data, but you need to create more DCRs to collect log data such as Windows event logs and Syslog Log. 
+VM insights also doesn't send guest performance data to Azure Monitor Metrics where it can be analyzed with metrics explorer and used with metrics alerts.
+
+# And, you can not create alret for the metrics that are provided by VMinsights. but you can quickly monitor your VM resource utilization, and vm performance by using VMinsight.
+
+# So, if you want to learn about Insights monitoring feature, then you can watch video in the playlist where you can learn about VMinsight feature.
+
+# In this demo, i will follow diffent approach to monitor Azure VM and create alerts.
+# So, In this tutorial, you learn how to:
+Create a DCR that sends guest performance data to Azure Monitor Metrics and log events to Azure Monitor Logs.
+View guest logs in Log Analytics workspace.
+View guest metrics in metrics explorer.
+
+# Team, we are going to cover both logs and metrics by creating a custom Data Collection Rule (DCR). In this case, there is no need to enable the VM Insights feature.
+
+Once the setup is complete, we will query and analyze the guest logs and metrics data for the virtual machine.
+
+# Today, we will learn how to explore and monitor metrics of a virtual machine (VM), such as CPU, RAM, and disk usage. 
+You will also learn how to configure logging to view VM logs for various events. Additionally, I will demonstrate how to create alerts using both log data and metric data.
+
+# What is Alerts in Azure monitor?
+In Azure Monitor, an alert is a notification or action triggered when a monitored condition (like CPU usage, Memory usage, disk usage.) crosses a defined threshold 
+or meets certain criteria.
+
+> An alert helps you detect and respond to issues in your Azure resources, such as:
+
+Virtual Machines (VMs)
+
+Azure SQL Databases
+
+App Services
+
+Storage Accounts
+
+Custom applications (via logs or metrics)
+
+> Azure provide several Types of Monitor alerts:
+Such as:
+
+1) Metric alert: Metric data is stored in the system already precomputed.
+ Metric alerts are useful when you want to be alerted about data that requires little or no manipulation. 
+ Use metric alerts if the data you want to monitor is available in metric data.
+ 
+2) Log search alert:  You can use log search alerts to perform advanced logic operations on your data. If the data you want to monitor is available in logs,
+ or requires advanced logic, you can use the robust features of Kusto Query Language (KQL) for data manipulation by using log search alerts.
+
+3) Simple log search alert: Ideal for monitoring applications, or network traffic where unaggregated real-time monitoring and quick incident response are critical. 
+Each error triggers an alert, allowing you to take immediate action. For example, alerting for every failed job either backup job or any other automation, 
+ability to alert on windows events that affects our system as storage or security.
+
+4) Activity log alert: Activity logs provide auditing of all actions that occurred on resources. Use activity log alerts to be alerted when a specific event happens to a resource
+ like a restart, a shutdown, or the creation or deletion of a resource.
+ 
+5) Prometheus alerts? Prometheus alerts are used for alerting on Prometheus metrics stored in Azure Monitor managed services for Prometheus.
+ The alert rules are based on the PromQL open-source query language.
+
+
+# Now next topic is Log. so what is Log?
+
+ Logs refer to detailed, timestamped records of events generated by our applications, services, and Azure resources.
+ we can say that, Logs are time-stamped records that track what happens in our applications, services, and Azure resources.
+ logs provide records of events generated by our applications, services, and Azure resources.
+ 
+# Ok team, theory part is completed now, lets start the demo.
+
+# Ok Lets start:
+#Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+# Go to Azure portal, click on VM.
+
+This is my existing Linux VM. If you don't have one, you can create one.
+
+
+# Team, before we start the demo, I want to show you something.
+If you click on Metrics, and look at the Namespace section, you’ll notice that only VM Host data is available.
+We’ve already explained the VM Host data earlier.
+However, you’ll see that VM Guest data is not available yet.
+Once we create a DCR and install the Azure Monitor Agent, the VM Guest data will start appearing here as well.
+
+# Ok team lets start the demo.
+
+# SO, to do that, lets search Monitor and click on it.
+
+# Now our first step is to create Data Collection Rules.
+
+# Now your question should be, what is Data Collection Rules.
+
+#DCR:
+Note: Team lets understand the DCR in the diagram.
+
+Data collection rules (DCRs) define data collection from the Azure Monitor Agent and are stored in Log Analytics workspaces.
+
+For VMs, DCRs define data such as events and performance counters to collect, and specify locations such as Log Analytics workspaces to send the data.
+A single VM can be associated with multiple DCRs, and a single DCR can be associated with multiple VMs.
+
+Note: Once, you enabled DCR, Azure Monitor Agent is automatically installed on any virtual machines that don't already have it.
+
+# Now what is Azure Monitor Agent:
+The Azure Monitor Agent is responsible to collects monitoring data from the guest operating system of Azure and hybrid virtual machines (VMs). 
+It delivers the data to Azure Monitor for use by features, insights, and other services, such as Microsoft Sentinel and Microsoft Defender for Cloud. 
+
+
+#And what is Log Analytics workspace.
+So, Log Analytics workspace is a data store service, we can collect any type of log data from all of your Azure and non-Azure resources and applications. 
+Workspace configuration options let you manage all of your log data in one workspace to meet the operations, analysis, and auditing needs of different personas
+in our organization through:
+1) Azure Monitor features, such as built-in insights experiences, alerts, and automatic actions
+2) Other Azure services, such as Microsoft Sentinel, Microsoft Defender for Cloud, and Logic Apps
+3) Microsoft tools, such as Power BI and Excel
+4) Integration with custom and third-party applications
+
+Note: One important thing- This tutorial doesn't require VM insights to be enabled for the virtual machine.
+ Azure Monitor Agent is installed on the VM if it isn't already installed when you create DCR.
+
+# Team, before creating DCR, lets first create "Log Analytics workspace" so that, we store log data in the Log Analytics workspace.
+
+so, to do that, search Log Analytics workspace- and click on create- select subscription and RG- mention the name the workspace- select your region
+click on review + create - now click on create to create "Log Analytics workspace"
+
+Now, go to monitor- click on insight-click on "Log Analytics workspace"- and here your can see that "Log Analytics workspace" has been created.
+
+# ok team lets create DCR.
+On the Monitor menu in the Azure portal, select Data Collection Rules under the setting tab. Then select Create to create a new DCR.
+
+On the Basics tab, enter a Rule Name. Select a Subscription, Resource Group, and Region where the DCR and its associations are stored.
+And one important thing, These resources don't need to be the same as the resources being monitored.
+
+Meaning that- The Subscription, Resource Group, and Region you select for storing the DCR (Data Collection Rule) can be different from the actual resources
+ (like virtual machines).
+ 
+# I am selecting my current subscription, RG and region because i dont have another one.
+
+Select Windows or Linux based on your OS. or select All if it's associated with both types. means, if you want to create DCR and monitor log for Windows and Linux both
+then you can select All option.
+
+# Now, click on next to resource tab- On the Resources tab, identify one or more virtual machines to which the DCR applies.
+ Azure Monitor Agent is installed on any VMs that don't already have it.
+
+> Select Add resources and select either your virtual machines or the resource group or subscription where your virtual machine is located.
+ The DCR applies to all virtual machines in the selected scope.
+ 
+# So I am selecting:
+Resource Group – where my VM is deployed
+Resource Types – Virtual Machines
+Location – East US
+
+Then, check the box for the VM and click Apply.
+
+# Now click on next to "Collect and deliver tab" and here we need to Select data sources:
+
+A single DCR can have multiple data sources. For this tutorial, we are going to use same data collection rule to collect both guest metrics and guest logs.
+
+We send metrics to "Azure Monitor Metrics" and to "Azure Monitor Logs" so that they can both be analyzed with metrics explorer and Log Analytics.
+
+On the Collect and deliver tab, select Add data source. For the Data source type, select Performance counters.
+ Leave the Basic setting and select the counters that you want to collect.
+ currently, in the basic tab, these counters are already selected. but if you want to Use any individual metric then you can select Custom tab and here 
+ you can select any individual metric values.
+ 
+Note- I am not selecting custom metrics for now.
+
+# Now, Select the Destination tab. click on add destination and here- click on destination type and select Azure Monitor Metrics.
+And subscrption is already selected. 
+So, i have added data source for the metrics.
+
+# Now lets add data source for the Logs
+
+> Click on Add Destination again.
+> Then, click on Destination Type and select Azure Monitor Logs.
+> Choose your Subscription, and then select the Log Analytics Workspace that we created earlier.
+> Now click on Add data source
+
+# Now, Select Add data source again to add logs to the DCR. For the Data source type, select  Linux syslog and if your using windows VM, then select Windows event logs. 
+> Select the types of log data that you want to collect. 
+> So in the Facility section, I am selection all the Log data, but you can select any one. and "Set minimum log level for selected facilities", i am selecting- LOG_INFO
+But you can select any one.
+
+> Now click on next to destination tab- click on add destination- select destination type- azure monitor log- select your subscription- and workspace.
+> Now click on Add data source
+> Now team, Select Review + create - then click on create to create the DCR.
+
+Team note that, once you create DCR, it will also, install the Azure Monitor agent on the selected virtual machines.
+if you have not installed monitoring agent on the VM.
+
+# Lets wait for some to complete the creation of DCR.
+
+# Now, if you click on setting in the monitor tab- and then click on DCR- and here you can see the DCR that we created earlier.
+
+# Now lets see if Azure monitor agent is installed in the VM or not. so go to VM- click on setting- click on  Extensions + applications- and here you can see that Agent
+has been installed.
+
+# Now, team, let's go to the VM console and check whether the Metrics namespace for the VM Guest is available.
+
+Go to the VM, click on Metrics under the Monitoring tab, and then click on Namespace.
+You can now see that Guest Metrics data is available under the Custom section.
+
+If you click on the Metrics tab, you'll notice that a variety of custom guest metrics are now available.
+
+Note: It may take some time for the guest metrics data to fully appear, so please wait for some time.
+
+# Ok team, so we have successfully created the DCR.  and configure custom metrics and logs for the monitoring.
+#############################################################################################################################################################################
+
+# Now, let's first create an alert for Azure VM metrics data, such as CPU, Memory, and Disk. After that, we will view, query, and analyze the VM logs.
+And We will also create alerts based on VM logs.
+
+# So team, if you click on metrics- and here you can select metrics- which you want to monitor and create alert-rule
+
+# Suppose I want to monitor the Disk Used Percentage.
+To do this, click on the Disk Used Percentage metric, then click on "New Alert Rule" in the top-right corner.
+From there, follow the steps to create an alert based on this metric.
+
+However, since we have the Azure Monitor service available, we can use it to centrally monitor, manage, and create alerts for metrics across multiple VMs from a single location.
+
+So, instead of creating and configuring alerts directly from here, we’ll use Azure Monitor to perform this activity.
+My intention is to show you this process now, so you gain a better understanding.
+
+# So, let's go to the Azure Monitor service and click on Metrics.
+Here, select your Resource Type (in this case, Virtual Machine) and choose your location.
+Now you'll see the list of available VMs — select your VM and click Apply.
+
+Team, notice that the same options appear here — you can select the Metrics Namespace and the specific Metric Type.
+
+For example, if you select a metric like CPU Percentage and click on "New Alert Rule" in the top-right corner, you can create an alert directly from here.
+
+However, you can also use the Alerts option directly to create alerts for VM metrics.
+
+On the left-hand menu, if you click on Alerts, you can create alerts from there as well.
+
+# Now, you can either click on "Create" and then select "Alert Rule", or you can directly click on "Alert Rule" from here.
+
+> So, I am selecting the "Create" option — click on Create, then select Alert Rule.
+
+> Now, select the Resource Type, which is Virtual Machine, and choose the Location.
+
+> Expand the Resource Group (RG), select your VM, and then click Apply.
+
+> Next, click on the "Next: Condition" tab.
+
+> Here, select the Signal Type — this refers to the metric that we want to monitor and use to trigger an alert.
+
+
+> First, let's create an alert for Percentage CPU.
+
+> Click on "See all signals", and now select the desired metric type.
+
+Note: Team, in the top-right corner, you can see the Signal Source option.
+
+If you select Signal Source = Custom, it means you are creating an alert for VM Guest Metrics data.
+
+If you select Signal Source = Platform, it means you are creating an alert for VM Host Metrics data.
+
+Since we need to monitor CPU utilization for the VM Host, I am selecting:
+
+Signal Type: Percentage CPU
+
+Signal Source: Platform Metrics
+
+However, you can choose the signal type and source based on your specific requirements.
+
+> So, select Percentage CPU, and then click Apply.
+
+> Now, we are going to define a condition so that whenever the specified condition or threshold is met, an alert will be triggered.
+
+> signal name- leave it default which is- already selected- percentage CPU
+
+> Threshold type- we can choose Static or Dynamic. 
+
+> Lets understand the different between Static or Dynamic Threshold:
+
+# Static Threshold
+
+You manually set a fixed value as the threshold. The alert is triggered when the metric crosses that specific value.
+
+Example:
+If CPU usage > 90%, trigger an alert.
+
+Use Case of Static Threshold:
+
+When you know what “normal” and “abnormal” values are.
+
+Ideal for predictable workloads or known performance baselines.
+
+
+# Dynamic Threshold
+
+Azure Monitor uses machine learning to automatically learn the normal behavior of a metric and sets thresholds based on historical patterns.
+
+Example:
+Azure Monitor learns that CPU usually stays around 50–70%, so if it suddenly spikes to 90%, it triggers an alert — even if no fixed threshold is set.
+
+Use Case of Dynamic Threshold:
+
+For workloads with variable or unpredictable patterns.
+
+When it's difficult to define a “normal” threshold manually.
+
+> So, I am selecting "Static"
+
+> Aggregation type: if you click here- you can find several option.
+
+> I am selection Average- but you can select any one.
+
+> If we select Average: It calculates the average of all the metric values collected during each evaluation period.
+
+> When Azure collects metric data (like CPU usage, memory, Dist etc.), it does so at regular intervals (e.g., every minute).
+
+> If our evaluation period is 5 minutes, and we're using Aggregation type- Average, Then Azure will: Collect multiple data points within those 5 minutes.
+
+> Value is: I am selecting "Greater than", but you can choose any option.
+
+> Threshold Value: Let's specify 90 percent.
+
+> This means that whenever CPU utilization is greater than 90%, an alert will be triggered.
+
+> check every- i am selecting 5 minutes but you can select other as well.
+
+Meaning that- we can Choose how often the alert rule will check if the condition is met.
+
+> Lookback Period: This is the time window that Azure Monitor looks back on when evaluating the data.
+
+> Now, click on next to Action tab.
+
+> In Azure Monitor, an action refers to what happens when an alert is triggered. So, I want to send alert on my email when when an alert is triggered.
+
+> So here. we can create new action group OR  we can use existing action group.
+
+> So i am going to create Action group.
+> Click on create Action group- select Subscription and RG
+> Region- right now it is selected to Global- but we can select our region.
+
+> What does "Global Region" mean in Azure Monitor Action Group?
+The "Global Region" refers to the global scope of certain Azure services that are not tied to a specific Azure region (like East US, West Europe, etc.).
+
+> In the context of Action Groups, "Global Region" means:
+
+The action group is not region-specific and can be used across all regions and resources in your Azure subscription/tenant.
+
+> Why is this useful?
+You can reuse the same action group (e.g., for email, SMS, webhook alerts) across different VMs or services located in different Azure regions.
+It's managed centrally, and you don’t have to create multiple action groups for each region.
+
+> so, i am selecting my region which is- EAST US
+> Now mention the Action group name- such as- my-action-group
+> And display name for the action group- lets give the name - test
+
+> Now click on next to Notification tab- now, click on Notification type and Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- here, you can also Enable the common alert schema- i am not enabling this feature for now.
+
+> Now, click on ok.
+
+> here specify the notification name like- cpu-usage-alert
+
+> Now click on next to Action tab.
+
+Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create- then click on create to create action group
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+
+> choose the Severity which you want. i am selecting critical
+
+> give the Aler rule name like- cpu-test-alert
+
+> click on review + create- then click on create to create alert rule. 
+
+Note: Lets see if alert rule is created. click on alert rule- and here you can see the alert rule for CPU.
+
+> so team, we have successfully setup the alert for percentage CPU.
+###########################################################################################################################
+# Now next, lets create and configure alert for Memory:
+
+> On the left-hand menu, click on Alerts, you can create alerts from there as well.
+
+
+> Now click on "Create" then select Alert Rule.
+
+> Now, select the Resource Type, which is Virtual Machine, and choose the Location.
+
+> Expand the Resource Group (RG), select your VM, and then click Apply.
+
+> Next, click on the "Next: Condition" tab.
+
+> Here, select the Signal Type — earlier, i already explain about signal type.
+
+> Click on "See all signals", and now select the  metric for the memory.
+
+> signal type- mem/used_percent
+> signal source- custom metrics
+
+> you can choose the signal type and source based on your specific requirements.
+
+> So, select mem/used_percent, and then click Apply.
+
+> Now, we are going to define a condition so that whenever the specified condition or threshold is met, an alert will be triggered.
+
+> signal name- leave it default which is- already selected- mem/used_percent
+
+> Threshold type- we can choose Static or Dynamic. I already explain difference between Static or Dynamic.
+
+> So, I am selecting "Static"
+
+> Aggregation type: if you click here- you can find several option.
+
+> I am selection Average- but you can select any one.
+
+> If we select Average: It calculates the average of all the metric values collected during each evaluation period.
+
+> If our evaluation period is 5 minutes, and we're using Aggregation type- Average, Then Azure will: Collect multiple data points within those 5 minutes.
+
+> Value is: "greater than"
+
+> Threshold Value: Let's specify 90 percent.
+
+> This means that whenever memory utilization is greater than than 90%, an alert will be triggered.
+
+> Split by dimensions:
+"Split by dimension" is a feature in Azure Monitor alerts that allows you to evaluate a metric separately for each unique value of a selected dimension
+rather than aggregating all the data together.
+
+This monitoring feature enables you to create detailed alerts that focus on specific parts of your system.
+
+For example:
+
+Dimension name: host
+
+Dimension value: the name of our virtual machine (VM)
+
+Note: This is an optional feature. You can choose to use it based on your monitoring requirements.
+I am currently not using this feature.
+
+> check every- i am selecting 5 minutes but you can select other as well.
+
+Meaning that- we can Choose how often the alert rule will check if the condition is met.
+
+> Lookback Period: This is the time window that Azure Monitor looks back on when evaluating the data.
+
+> Now, click on next to Action tab. so i aleardy explain about action group. we can create new action group or  we can use existing action group.
+
+> So i am using existing Action group. so select the action group that we created when i was creating alert for CPU.
+
+> Now click on next to Notification tab- now, click on Notification type and Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- here, you can also Enable the common alert schema- i am not enabling this feature for now.
+
+> Now, click on ok.
+
+> here specify the notification name like- memory-usage-alert
+
+> Now click on next to Action tab.
+
+Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create- then click on create to create action group
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+
+> choose the Severity which you want. i am selecting critical
+
+> give the Aler rule name like- memory-test-alert
+
+> click on review + create- then click on create to create alert rule. 
+
+Note: Lets see if alert rule is created. click on alert rule- and here you can see the alert rule for Memory.
+
+> so team, we have successfully setup the alert for mem/used_percent.
+
+############################################################################################################################
+# Now next, lets setup alert for disk.
+
+> On the left-hand menu, click on Alerts, you can create alerts from there as well.
+
+
+> Now click on "Create" then select Alert Rule.
+
+> Now, select the Resource Type, which is Virtual Machine, and choose the Location.
+
+> Expand the Resource Group (RG), select your VM, and then click Apply.
+
+> Next, click on the "Next: Condition" tab.
+
+> Here, select the Signal Type — earlier, i already explain about signal type.
+
+> Click on "See all signals", and now select the  metric for the memory.
+
+> signal type- disk/used_percent
+
+> signal source- custom metrics
+
+> you can choose the signal type and source based on your specific requirements.
+
+> So, select disk/free_percent, and then click Apply.
+
+> Now, we are going to define a condition so that whenever the specified condition or threshold is met, an alert will be triggered.
+
+> signal name- leave it default which is- already selected- disk/used_percent
+
+> Threshold type- we can choose Static or Dynamic. I already explain difference between Static or Dynamic.
+
+> So, I am selecting "Static"
+
+> Aggregation type: if you click here- you can find several option.
+
+> I am selection Average- but you can select any one.
+
+> If we select Average: It calculates the average of all the metric values collected during each evaluation period.
+
+> If our evaluation period is 5 minutes, and we're using Aggregation type- Average, Then Azure will: Collect multiple data points within those 5 minutes.
+
+> Value is: I am selecting "greater than", but you can choose any option.
+
+> Threshold Value: Let's specify 90 percent.
+
+> This means that whenever Disk utilization is greater than than 90%, an alert will be triggered.
+
+> check every- i am selecting 5 minutes but you can select other as well.
+
+Meaning that- we can Choose how often the alert rule will check if the condition is met.
+
+> Lookback Period: This is the time window that Azure Monitor looks back on when evaluating the data.
+
+> Now, click on next to Action tab. so i aleardy explain about action group. we can create new action group or  we can use existing action group.
+
+> So i am using existing Action group. so select the action group that we created when i was creating alert for CPU.
+
+> Now click on next to Notification tab- now, click on Notification type and Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- here, you can also Enable the common alert schema- i am not enabling this feature for now.
+
+> Now, click on ok.
+
+> here specify the notification name like- disk-usage-alert
+
+> Now click on next to Action tab.
+
+Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create- then click on create to create action group
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+
+> choose the Severity which you want. i am selecting critical
+
+> give the Aler rule name like- disk-test-alert
+
+> click on review + create- then click on create to create alert rule. 
+
+Note: Lets see if alert rule is created. click on alert rule- and here you can see the alert rule for disk.
+
+> so team, we have successfully setup the alert for disk/used_percent.
+
+
+#############################################################################################################################
+# Now next, lets setup alert for VM availability.
+
+
+Note: Creating an alert for VM Availability in Azure is essential for proactive monitoring and quick incident response. 
+
+Suppose, Many critical applications running on Azure VMs. If a VM goes unavailable (stopped, crashed, unreachable), it can impact your users, customers, or business processes.
+
+If you created alert for VM availability, it will helps you to take immediate action and reduce downtime.
+
+> On the left-hand menu, click on Alerts, you can create alerts from there as well.
+
+
+> Now click on "Create" then select Alert Rule.
+
+> Now, select the Resource Type, which is Virtual Machine, and choose the Location.
+
+> Expand the Resource Group (RG), select your VM, and then click Apply.
+
+> Next, click on the "Next: Condition" tab.
+
+> Here, select the Signal Type — earlier, i already explain about signal type.
+
+> Click on "See all signals", and now select the  metric for the memory.
+
+> signal type- VM Availability Metric (Preview)
+
+> signal source- platform metrics
+
+
+> So, select VM Availability Metric, and then click Apply.
+
+> Now, we are going to define a condition so that whenever the specified condition or threshold is met, an alert will be triggered.
+
+> signal name- leave it default which is- already selected- VM Availability Metric
+
+> Threshold type: Static
+
+> Aggregation type: Average
+
+> Value is: less than
+
+> Unit: Count
+
+> Threshold: 1
+
+> This means that whenever VM Availability count is less than than 1, an alert will be triggered.
+
+> Meaning that:
+The VM availability count is being monitored (likely how many Virtual Machines are available/running at a given time).
+
+A threshold has been set at 1.
+
+The condition is "less than", so the alert will trigger only when the count drops below 1 — i.e., when it becomes 0.
+
+In practical terms:
+
+If no virtual machines are available (count = 0), an alert/notification will be sent.
+If 1 or more VMs are available, no alert is triggered.
+
+> Split by dimensions:
+"Split by dimension" is a feature in Azure Monitor alerts that allows you to evaluate a metric separately for each unique value of a selected dimension,
+ instead of aggregating all data together.
+
+> This monitoring feature, allows you to create detailed alerts that focus on particular parts of your system— like a single VM, or the specific source of the signal.
+
+> so we can identify and respond to issues affecting specific components, such as individual VMs, or signal sources like Platform or User.
+
+> Dimension name: context
+
+> Operator =
+
+> Dimension values: select all ( which include platform and user both)
+
+> the Context dimension is used to differentiate where the signal originated from:
+
+> such as signal originated from: platform and user
+
+Platform = Metrics/events generated by the Azure platform (e.g., VM deallocated, host down, etc.)
+
+User = Metrics/events generated from within the guest OS 
+
+> check every- i am selecting 5 minutes but you can select other as well.
+
+Meaning that- we can Choose how often the alert rule will check if the condition is met.
+
+> Lookback Period: This is the time window that Azure Monitor looks back on when evaluating the data.
+
+> Now, click on next to Action tab. so i aleardy explain about action group. we can create new action group or  we can use existing action group.
+
+> So i am using existing Action group. so select the action group that we created when i was creating alert for CPU.
+
+> Now click on next to Notification tab- now, click on Notification type and Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- here, you can also Enable the common alert schema- i am not enabling this feature for now.
+
+> Now, click on ok.
+
+> here specify the notification name like- VM availability-alert
+
+> Now click on next to Action tab.
+
+Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create- then click on create to create action group
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+
+> choose the Severity which you want. i am selecting critical
+
+> give the Aler rule name like- VM availability-alert
+
+> click on review + create- then click on create to create alert rule. 
+
+Note: Lets see if alert rule is created. click on alert rule- and here you can see the alert rule for disk.
+
+> so team, we have successfully setup the alert for VM availability.
+
+##################################################################################################################################
+# Now Team, Last topic is Logs.
+> Lets see hot to view, query and analysis the VM logs.
+
+> Team, Data is retrieved from a Log Analytics workspace by using a log query written in Kusto Query Language.
+
+> you can view, query, and analyze VM logs either from the Log Analytics Workspace, or you can do it individually from the VM console itself.
+
+# Let's first see how to view, query, and analyze logs using Log Analytics Workspace:
+
+Go to your Log Analytics Workspace.
+
+Log Analytics will open with an empty query window, and the scope will be set to the Log Analytics Workspace itself by default.
+
+If you're monitoring logs for a different service or resource (e.g., a VM), you can change the scope.
+
+Click on the three dots (•••) in the top-right corner.
+
+You will see that the scope is currently set to the Log Analytics Workspace.
+
+Now, let's change the scope to our Virtual Machine.
+
+Click on Change Scope.
+
+Uncheck the currently selected Log Analytics Workspace.
+
+Now, select the Resource Group, Resource Type (Virtual Machine), and Location.
+
+Choose your VM and click on Apply.
+
+Now the scope is set to your VM, and you can run queries and analyze logs collected specifically from that VM.
+
+# Now let’s see how to do the same directly from the VM console:
+
+Go to your Virtual Machine in the Azure portal.
+
+Click on Logs under the Monitoring section.
+
+This will open the Log Analytics query editor, but this time the scope is already set to the selected VM.
+
+If you're only interested in logs from this VM, no need to change anything — all queries will return results only for that VM.
+
+Again, you can confirm this by clicking on the three dots (•••) — you’ll see the scope is already set to your VM, so no need to change it.
+
+In the empty query window, enter either Event or Syslog, depending on whether your Virtual Machine is running Windows or Linux.
+
+In my case, I'm using a Linux VM, so I will type Syslog.
+
+Then click on Run — the events collected within the selected time range will be displayed.
+ 
+Now, you can see the system log here.
+
+Note: If the query doesn't return any data, you might need to wait a few minutes until events are created on the virtual machine to be collected. 
+You might also need to modify the data source in the DCR to include other categories of events.
+
+
+# Now i want to discuss next feature of Azure monitor which is- heartbeat
+
+So, Click on table- and click on heartbeat under the virtual machine.
+
+the Heartbeat is a special type of log signal used to indicate that a monitored machine (VM or server) is alive and connected.
+
+Basically, The Heartbeat is a record sent at regular intervals (typically every 1 minute) by the Azure Monitor Agent (or the older Log Analytics Agent) to confirm:
+
+The VM is running
+
+The monitoring agent is installed
+
+The agent is functioning properly
+
+There is network connectivity to Azure Monitor
+
+# On the right side, you'll notice that  KQL is currently selected. You can switch to Simple Mode and you can query the log in simple mode as well.
+
+# Ok, now Select "KQL" from the dropdown Mode for more advanced querying.
+
+# Now, you question should be what is KQL?
+
+So, Azure provides a powerful query language called Kusto Query Language (KQL). Using KQL, we can effectively query and analyze log data.
+
+If you're already familiar with KQL (Kusto Query Language), you can type your query in the editor and click "Run" to see the logs based on your custom requirements.
+
+If you're new to KQL, click on the three dots (•••) on the right side, then select "Learn KQL" to access Azure's built-in KQL learning resources.
+
+# Using Default KQL Queries:
+
+Azure also provides some default KQL queries you can use to quickly analyze logs.
+
+To access them:
+
+Click on the "Query Hub" on the right.
+
+From here, you can select and run predefined queries for various metrics.
+
+For example, to see logs related to Virtual Machine Available Memory:
+
+Select the appropriate query.
+
+Click "Run".
+
+Choose your desired time range from the dropdown (you can also select a custom date).
+
+The logs will be displayed below.
+
+Example: Viewing Free Disk Space Logs
+
+If you want to view logs for Virtual Machine Free Disk Space:
+
+Go to the Queries Hub again.
+
+Click Run.
+
+Switch to KQL Mode (if not already selected).
+
+Run the query to view the logs.
+
+Note: If the log data doesn’t appear immediately, please wait for some time.
+
+Sharing, Saving, and Creating Dashboards
+
+Click on "Share", and you'll see several options:
+
+Share the log report.
+
+Save the report.
+
+Pin the report to an Azure Dashboard for continuous monitoring.
+
+To create a dashboard:
+
+Click "Save".
+
+Select "Pin to Azure Dashboard".
+
+Choose Create New.
+
+Set the type as either Shared or Private.
+
+Enter a name for the dashboard and click "Create and Pin".
+
+To view your dashboard:
+
+Click on the menu (three lines).
+
+Go to "Dashboard".
+
+Expand "My Dashboard" and select your dashboard.
+
+From here, you can monitor resource metrics in real time, download the dashboard, edit it, or share it with others.
+
+# Now team, lets create  Alerts for any type of Metrics Log. so for the testing purpose, i am creating Alert for "Virtual Machine Free Disk Space"
+but you can follow same steps to create alert for any metrics.
+
+# Ok, Now Go to the Query Hub.
+
+Click on "Alerts".
+
+Select the metric, e.g., "Virtual Machine Free Disk Space". 
+
+Click Run, then click on the three dots (•••) and select "New Alert".
+
+You’ll see the KQL query is already populated.
+
+Scroll down to the Measurement section and configure the alert as follows:
+
+Measure: CounterValue
+
+Aggregation Type: Average
+
+Aggregation Granularity: 5 minutes
+
+Splitting by Dimensions: I already explained aboute this feature. Leave it default.
+
+Ok, now next is:
+
+Operator: Greater than
+
+Threshold Value: 90%
+
+Frequency of Evaluation: Every 5 minutes
+
+> Now, click on next to action section.
+
+In Azure Monitor, an action refers to what happens when an alert is triggered.
+So, I want to send alert on my email  when an alert is triggered.
+
+> So here. we can create new action group OR  we can use existing action group.
+
+> So i am going to select existing one that we created for CPU alert.
+
+
+> Now click on next to Notification tab- now, Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- then click on ok
+
+> here specify the notification name like-VM Availability-notification
+
+> Now click on next to Action tab.
+
+Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create- then click on create to create action group
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+> choose the Severity which you want.
+> give the Aler rule name like vm-status-alert-rule
+> click on review + create- then click on create to create alert rule. 
+
+So, this is how you can configure alert using metrics Logs.
+
+Note: Team, you can follow these steps to create monitoring Alert for any type of the metrics.
+
+##########################################################################################################################
+
+# Ok team, this demo has been completed now. thanks for watching my video, we will meet in next video. thanks.

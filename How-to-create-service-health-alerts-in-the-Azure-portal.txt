@@ -1,0 +1,218 @@
+# How to create service health alerts in the Azure portal.
+
+# Hello everyone, my name is Ravendra Tiwari, and welcome back to my channel!
+
+# Today, we will learn how to create service health alerts in the Azure portal.
+
+
+# But, before starting the demo, lets first understand about service health.
+
+Note: open the document and explain it.
+
+# Okay, now let's go to the Azure portal and start the demo.
+
+# Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+# Let's first create a resource group, because as you know, an RG (Resource Group) is a mandatory requirement for creating any service.
+
+1. Now Search Service Health and click on it.
+
+# Now team, lets understand these feature First.
+1. Service Issues
+
+If you click on service issues, here you can see that there is No active service issues.
+
+Definition: Service issues refer to any ongoing or past problems affecting the availability or performance of specific Azure services in a particular region.
+This could include disruptions, outages, or degraded service performance caused by internal Azure problems (e.g., data center failures, network disruptions, etc.).
+
+what is Use Case: We can use service issue feature to monitor service issues to stay informed about problems that could impact the operation of our services hosted on Azure.
+
+Example: A particular Azure region experiencing downtime for virtual machines, storage, or networking services.
+
+2. Planned Maintenance.
+Cloick on Planned Maintenance, you can see here, No planned maintenance events found, that means, there is no Upcoming maintenance windows and scheduled updates.
+
+Definition: Planned maintenance is scheduled work that Microsoft Azure will carry out on Azure infrastructure or services.
+ This might involve updates, hardware replacements, system patches, or upgrades. These are usually communicated ahead of time so that customers can plan accordingly.
+
+Use Case of Planned Maintenance: You can use this information to prepare for periods when certain services may be temporarily unavailable or degraded due to planned updates.
+
+Example: A planned upgrade to the Azure SQL Database service in a region, which may result in temporary downtime for customers using that service.
+
+3. Health Advisories: you can see here currently, I dont have any health advisories from Azure side.
+
+Definition: Health advisories provide recommendations or warnings from Microsoft related to known issues, security vulnerabilities, or best practices
+for maintaining the health and security of your Azure resources. These may not always indicate an immediate problem but serve as a proactive measure.
+
+Use Case: To stay ahead of potential problems and adjust configurations or practices before they affect your Azure services.
+
+Example: A security vulnerability discovered in a specific Azure service or a recommendation to update to a newer, more secure version of a service.
+
+4. Security Advisories: I dont have any security advisories.
+
+Definition: Security advisories focus specifically on vulnerabilities, threats, or security-related incidents that could affect Azure services or your workloads running on Azure.
+ These alerts provide information on how to mitigate or resolve security risks.
+
+Use Case: Security advisories are crucial for maintaining a secure environment, and you would monitor them to apply recommended patches, configuration changes, or other actions to protect your Azure resources.
+
+Example: A critical security vulnerability in a specific service, such as a bug in Azure Active Directory or a service that allows unauthorized access.
+
+5. Billing Updates: you can see here, No billing updates found
+
+Definition: Billing updates inform you about changes to your billing cycle, pricing, charges, or subscription status.
+ These updates may also include information about billing errors or discrepancies.
+
+Use Case: To ensure you are aware of any changes in your Azure costs or billing structure, as well as to address any potential issues with your account's financial status.
+
+6. Health History:
+
+Definition: Health history provides a historical view of past service issues, planned maintenance events. It allows you to review any incidents that affected
+ your Azure environment in the past.
+
+Use Case: To analyze past incidents and their impact on your services, and to identify patterns that may help in troubleshooting or in improving future resilience.
+
+Example: Viewing a timeline of past outages in a region or checking the performance impact of past planned maintenance activities.
+
+7. Resource Health:  
+
+Definition: Resource health shows the current health status of your individual Azure resources (e.g., Virtual Machines, Databases, Storage Accounts).
+It provides specific details on whether your resources are running as expected,  or any outage affecting them.
+
+Example: Checking the health of a specific virtual machine in our subscription that may be experiencing connectivity issues.
+
+Note: Note: I will explain how to create an alert for Resource Health later.
+
+First, let’s see how to create a Service Health alert.
+
+
+2. In the Service Issues panel, click on Create service health alert to open a new window where you fill in the information required to create the alert.
+
+3. Scope level- You can select either Subscription or Directory (Tenant).
+
+> If you select Directory (Tenant), it will include all the subscriptions within that directory. This means you can monitor and create service health alerts
+ for all existing subscriptions and the resources within them.
+
+> If you select Subscription as the scope level, you can monitor and create service health alerts for a single subscription and the resources within that specific subscription.
+
+> So, i am selecting - subscription
+
+4. Here, we need to define condition.
+
+Services: You can see that all the services are selected by default, but you can choose specific services based on your requirements.
+
+Regions: All regions are selected, but let's select only the region where our resource group is created.
+
+Event Types: You can see here, we can see all the event type here that we we discussed earlier.  Let's select all the event types.
+
+Resource Group: Select the resource group that we created earlier.
+
+Alert Rule Name: Enter a name for the alert rule. You can use any name, such as service-health-alert-rule.
+
+5. Notify Me By:  provide your email ID, where you want to get the alert.
+
+Here, you can select your action group if you already have an existing action group, and team, here you can select multiple action group.
+   An action group is used to send alert notifications.
+   
+6. To add more detailed information for the service health alert, select Advanced Options. so click on Advanced Options.
+But team, this is optional, you can directly create service health alert from here. you can skip Advanced Options.
+but lets see what feature are available in the Advanced Options.
+
+> Scope- we have already selected.
+> condition- you can difine condition from here as well. i am leaving it default.
+> Here, we have the option to either create a new action group or select an existing one. I have already explained what an action group is.
+> Since we have already provided our email ID in the previous tab to receive notifications directly, we don’t need to use an action group in this case.
+
+7. Under the Details tab, select the subscription and resource group where the alert rule will be saved.
+ You can use the same resource group where we are creating the service health alert, or choose a different resource group if you prefer.
+ you can create new RG as well.
+> I am using my existing resource group.
+
+> Alert rule name is already selected.
+
+8. Now, click on review + create to create service health alert.
+
+9. Now, go to service health dashboard and see if service  health alert is created.
+> so, under the Alert section- click on Health alert, and here you can see the service health alert rule that we created recently.
+
+10. ok team, we have successfully created alert for service health.
+
+# Now next, lets see, how to create alert for Resource health.
+
+Go to service health console and click on resource health.
+
+Resource Health:  you can see here, subscription is already selected, and under the resource tab, you can select resource, suppose, i want to see the health of my VM
+then i will select VM. 
+
+
+And, if you want to create alert for Resource health based on specific service. such as VM. you can select VM in the resource type section
+And simply click on "Add resource health alert" and create the health alert for VM.
+
+Now, you can see here, Signal name is already selected.
+Event status- lets select all
+Current resource status- leave it default 
+Previous resource status & reason type- leave it default.
+
+click on next to Action tab.
+
+> In Azure Monitor, an action refers to what happens when an alert is triggered. So, I want to send alert on my email when when an alert is triggered.
+
+> So here. we can create new action group OR  we can use existing action group.
+
+> So i am going to create Action group.
+> Click on create Action group- select Subscription and RG
+> Region- right now it is selected to Global- but we can select our region.
+
+> What does "Global Region" mean in Azure Monitor Action Group?
+The "Global Region" refers to the global scope of certain Azure services that are not tied to a specific Azure region (like East US, West Europe, etc.).
+
+> In the context of Action Groups, "Global Region" means:
+
+The action group is not region-specific and can be used across all regions and resources in your Azure subscription/tenant.
+
+> so, i am selecting my region which is- EAST US
+> Now mention the Action group name- such as- resource-health-action-group
+> And display name for the action group- lets give the name - test-action-group
+
+> Now click on next to Notification tab- now, click on Notification type and Choose how to get notified when the action group is triggered.
+
+> so select this option- Email/SMS message/Push/Voice
+
+>  here enable email box. because i want to get alert on my email id.
+
+> if you want to choose other option like- SMS message/Push/Voice you can select another option as well.
+
+> mention your email id- here, you can also Enable the common alert schema- i am not enabling this feature for now.
+
+> Now, click on ok.
+
+> here specify the notification name like- vm-resource-health-alert
+
+> Now click on next to Action tab.
+
+Team, you can select the action type if you want to Choose which actions are performed when the action group is triggered.
+> If you click on Action  tabs- here you can find several option to select.
+
+> But i am not selecting any action type because I dont required for now.
+
+> Now click on review + create- then click on create to create action group
+
+> Now click next to details tab- and here, subscription and RG is already selected.
+
+> choose the Severity which you want. i am selecting critical
+
+> give the Aler rule name like- vm-heath--alert
+
+> click on review + create- then click on create to create alert rule.
+
+> Now, lets see if resource health alert is created.
+
+> go to service health console and click on resource health- now select virtual maching under the resource type section.
+
+> and here you can see the alert rule that we created recently for resource health
+
+> And if you click on the alert, here you can see the health of VM.
+
+> So team, this is how you can create alert for Resource health, for any type of services.
+
+# Ok team, this demo has been completed, thanks for watching my video, see you in next video.
+

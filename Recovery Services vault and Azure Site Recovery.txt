@@ -24,9 +24,9 @@ For Azure VMs, Azure Backup automatically installs and manages the required VM b
 
 
 # what is Recovery Services vault?
-Recovery Services vault is the Azure resource that Azure Backup uses to store/manage backup data, recovery points, backup policies and perform backup operations.
-It is also used by Azure Site Recovery to manage disaster-recovery operations.
 
+ It stores and manages recovery points and backup policies for supported workloads and is also used by Azure Site Recovery to manage disaster-recovery operations.
+ Recovery Services vault is the Azure resource that Azure Backup uses to store/manage backup data and recovery points and perform backup operations.
  
  Noter: A recovery point is a point-in-time state of our data/workload that we can use to restore it.
  
@@ -57,7 +57,7 @@ Note: Once we Create Vault in the in the Resiliency console, we will get followi
 # What is Backup vault?
 
 A Backup vault is a newer Azure resource designed specifically for Azure Backup workloads that support it.
-It is used to manage, store and secure backups data for Azure Backup workloads that support that vault type.
+It used to manage, store and secure backups data for Azure Backup workloads that support that vault type."
 
 
 
@@ -93,4 +93,4 @@ DPM
 Azure Site Recovery (ASR) is an Azure disaster recovery service that replicates workloads to a secondary location and helps keep applications available by enabling failover
  when the primary location becomes unavailable.
  
- Note: There is no separate Site Recovery service in azure portal. Site Recovery is a feature inside the Recovery Services vault. we enable it from the vault's menu.
+ Note: There's no separate Site Recovery service in azure portal. Site Recovery is a feature inside the Recovery Services vault. we enable it from the vault's menu.

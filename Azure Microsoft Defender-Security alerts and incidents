@@ -1,0 +1,336 @@
+# How to Security alerts for incidents using Microsoft Defender for Cloud
+
+# Hello Everyone, my name is Ravendra and welcome back to my channel.
+
+# So, today is Day-33 and in this class, one of the most important service in Azure which is- microsoft defender for cloud
+
+# we will use "microsoft defender for cloud" service to create and setup security alert for incident at the subscription level.
+
+# so whenever, any incidents happened in all the resources within the subscription, we will get an alert in the email.
+
+# Team, i will also explain how you can send alert to team channel using logic app service.
+
+# But team, before staring the demo, lets first complete the theory part.
+
+# So team, lets understand everthing on the documents:
+
+# open the document and explain:
+
+# Now your question might be, Why we use "microsoft defender for cloud" and Why we need to set up security alerts for any type of incident in azure subscription level.
+
+
+# So lets first understand the use case of "microsoft defender for cloud":
+
+So, "microsoft defender for cloud" service helps you to identify, prevent, and respond to security risks across your resources in Microsoft Azure.
+
+it does:
+
+Security posture management (CSPM)
+
+Finds misconfigurations (e.g., open ports, weak settings)
+
+Threat protection (CWPP)
+
+Detects real attacks like:
+Brute-force login attempts
+Malware activity
+Suspicious network traffic
+Recommendations
+
+Tells you what to fix and how to improve security
+Compliance tracking
+
+Helps meet standards like ISO, PCI, etc.
+
+
+And Why we need to set up security alerts for incident?
+
+Team, Defender can detect issues—but alerts are how you know something is wrong in real time.
+
+Without alerts:
+
+Issues stay unnoticed
+You only see problems when you manually check
+Response is delayed → higher risk
+
+With alerts:
+
+You get instant notification when something happens
+You can respond quickly before damage increases
+Why alerts for incidents are important
+
+Security incidents can happen anytime, like:
+
+Unauthorized access attempts
+Data exfiltration
+Suspicious activity on VMs or apps
+
+Alerts help you:
+Detect early
+Respond faster
+Minimize impact
+#########################################################
+# Okay, now let's go to the Azure portal and start the demo.
+
+# Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks.
+
+1. Search for Microsoft Defender for Cloud and click on it under the Services section.
+  In the overview page, You can see that the Defender for Cloud is open and enabled.
+
+Note: Team, we can also enable Defender for Cloud across all subscriptions within a management group. If you have multiple subscriptions, you can enable Defender for Cloud at the management group level. This applies for all subscriptions within that management group.
+
+# Team, dont be confused, about Tenant, Management group and subscription.
+
+# Lets understand about Tenant, Management group and subscription.
+
+Tenant (Microsoft Entra ID):
+So on the top, we have a Tenant. This is the top-level container. It represents your organization’s identity boundary (users, apps, authentication). You typically have one tenant per organization.
+
+Management Group:
+This sits inside a tenant. It’s used to organize multiple subscriptions and apply policies or settings (like Defender for Cloud) across them.
+
+Subscription:
+This is where your actual resources (VMs, storage, etc.) live.
+
+# So, in today’s demo, we are enabling the Defender for Cloud service on our Azure subscription. 
+
+2. Here, you will notice a notification stating that you can enable Defender for Cloud at the tenant level. If you choose this option, it will be enabled for all subscriptions within the tenant.
+
+3. Currently, it is enabled only at the subscription level. You can see the list of Azure subscriptions here.
+
+Team, By default, Defender for Cloud is enabled at the subscription level.
+
+4. Now team lets see how to setup and send incident alert to email.
+
+SO in the left side- click on management.
+
+Click Environment Settings
+
+Select your Subscription name
+
+Now click on Email notification here, and here:
+
+Select roles related to this subscription
+
+Add email addresses by following (separated by commas) you can add several email id.
+
+Notification types: you can enable these box. base on your requrement.
+Use the settings below to select the type of email notifications to be sent by Defender for Cloud.
+
+5. Now team last step is to do the testing to see if we are getting inciden security alert in the email.
+
+But, Microsoft Defender for Cloud service detect and provide the alert automatically whenever any incident happen in the subscription level.
+
+however, we can manually test the setup whether it is working or not.
+
+6. So lets see how create sample alerts:
+
+In the left side, click on security alerts - now click on  Sample alerts.
+
+And here subscription is already selected.
+
+Select the relevant Microsoft Defender plan(s) for which you want to see alerts.
+
+So i am going with all the Defender plan(s)
+
+Now click on Create sample alerts.
+
+# After a few minutes, the alerts appear on the security alerts page. and They also appear anywhere else that you've configured to receive your Microsoft Defender for Cloud
+ security alerts (such as email notifications).
+
+7. So team, sample alert is created.
+
+8. Now lets check the email if we are getting the alert.
+
+9. so team you can see in the email, we are getting the alert.
+
+# Now team, this is how you can setup and send alert to email.
+
+##################################################################################################################################
+
+# Now, team, let’s see how to select specific Azure services to receive incident alerts. By default, Defender is not enabled for some services because it is a paid feature.
+
+SO in the left side- click on management.
+
+Click Environment Settings
+
+Select your Subscription name - in the defender plan - click on 3 dot in the right side- and enable the monitoring for storage account.
+
+Team by following these steps, you can enable microsoft defender for cloud service for all the avaialbe services.
+########################################################################################################################################
+Note: One important thing, to get full security alerts, deep investigation capabilities, and Endpoint Detection and Response (EDR) from a Virtual Machine, you must have the Microsoft Defender for Endpoint agent installed in the VM.
+
+While Defender for Cloud provides agentless scanning for basic malware detection but if you want advance alert for the virtual machine in that case, you have to installed
+Microsoft Defender for Endpoint agent.
+
+If your goal is to get basic security alerts from a VM, then you do NOT need to install the Microsoft Defender for Endpoint agent.
+
+“For most Azure services like storage, SQL, and networking, no agent is required because Azure collects logs by default. Agents are mainly needed for virtual machines when we want deeper security insights.
+
+Basically, defender agent is not needed Mostly for Azure services that belong to PaaS.
+
+Because those services are:
+
+Fully managed by Azure
+Already integrated with logging and monitoring systems
+Continuously sending data to Defender automatically
+
+#######################################################################################################################################
+
+# SO Team, recently we understood about how to setup and send security alert to email.
+
+# But in the real time job, you mostly get a task to setup and send incident security alert to team channel.
+
+So in that case, we have to use Logic app to send alert to the team channel.
+
+# Now team lets see, how to setup and configure microsoft Defender for Cloud service with logic app to get the alert on team channel whenever any incident happened on the subscription level.
+
+team, i will explain the steps but currently i dont have team channel to setup and send a alert.
+
+but my intention is to show how you can work on it.
+
+# So to complete this process , we will required logic app.
+so lets first create logic app.
+1. Search Logic app and click on it.
+
+2. Now click on create.
+
+3. Select a hosting option
+I am selecting "Consumption" plan but you can select any other plan as well.
+
+Note: hosting plan in Microsoft Azure is the compute infrastructure that runs your application or service.
+
+In simple terms, it defines where and how your app runs, including its performance, scaling, and cost.
+
+Now click on select.
+
+4. here sunscription is already selected.
+
+5. here create a resource group.
+
+6. Here, mention the Logic App name
+Team, Name should be uniqe across the region.
+
+so, lets mention name like- test02-logic-app
+
+7. And next is Region- so i am going with default region but you can select any other region base on your requirement.
+
+8. Team you can see here- Enable log analytics option is selected to no. because currently i dont have log analytic workspce in the subscription.
+
+I am doing just demo, so log analytic workspace is not required.
+
+but if you have existing Log analytic workspace then you check yes option here and select your log analytic workspace.
+
+Log Analytics Workspace is a central place in Microsoft Azure where logs and monitoring data from your resources are collected, stored, and analyzed.
+
+It is part of Azure Monitor and is used for querying and analyzing data using Kusto Query Language.
+
+9. Workflow Type: I am going with default which is- stateful.
+
+10. now click on next to tags section- and if you want you can assign a tags to the logic app.
+
+i am not assiging a tag for now.
+
+11. click on review + create
+ 
+12. now click on create to create logic app.
+
+13. so team, this is our Logic app that we created recently.
+
+# Now team go back to microsoft defender for cloud service, setup and configure logic app with microsoft defender. so that we can send a security alert to team channel.
+
+14. In the Left side, click on Management - then "Workflow automation" and now click on ‘Add workflow automation’ 
+
+15. Here mention the name- for workflow automation
+such as: security-alert-workflow-automation
+
+16. Here you can mention description if you want.
+
+17. and here Subscription is already selected because, currently i have only single subscription.
+
+18. And here, select your RG wher you are resources are deployed but, team RG should be availabe within the same subscription.
+
+19. In the Trigger conditions section.
+
+• Defender for Cloud data type = Security alert
+
+• you can ignore: Alert name contains section.
+
+• Alert severities = All severities selected
+
+• Actions: subscription is already selected where we have deployed the the Logic App.
+
+• Now here, I am selecting a logic app that we created recently.
+
+• Now click on create to create workflow automation.
+
+# Now team next step is to add a trigger and action in the logic app designer section to connect logic app to team channel.
+
+20. go back to Logic app.
+
+21. In the left side, click on development tools - then click on Logic app designer
+
+
+22. click on Add trigger.
+
+23. And in this section- search for defender- and select "When a Microsoft Defender for Cloud alert is created or triggered"
+	
+So in this case, Logic App will be Triggers when alert is created in Microsoft Defender for Cloud and matches the evaluation criteria configured in an automation, or when manually run on a specific alert.
+
+
+Note: automated running of this trigger requires enabling automation in Microsoft Defender for Cloud and enabling a workload protection plan as a preliminary step. 
+To do so, visit Microsoft Defender for Cloud.
+
+Note: this trigger does not required any additional setup.
+
+24. Now need to add next Action in the workflow designer for team channel.
+
+25. click on ad action- 
+Choose action: “Post a message in a chat or channel”
+
+Sign in to Teams
+Select:
+Team
+Channel
+Write your alert message
+Save and run
+
+
+#####################################################################################################################################################################################
+26. In the Advanced parameters select- Subject, importance and body.
+
+27. Importance: select High
+
+28. subject: you can mention any subject name- like azure-Security-alert
+
+29. And in the Body section: 
+
+1) click on body box- click on below icon- click on dynamic content and then search "Alert type" and select it and click on Add.
+
+2) click on body box- click on below icon- click on dynamic content and then search "Start time" and select it and click on Add
+
+3) click on body box- click on below icon- click on dynamic content and then search "Alert Display Name" and select it and click on Add
+
+4) click on body box- click on below icon- click on dynamic content and then search "End time" and select it and click on Add
+
+5) click on body box- click on below icon- click on dynamic content and then search "Resourceidentifiers" and select it and click on Add
+
+6) click on body box- click on below icon- click on dynamic content and then search "Severity" and select it and click on Add
+
+7) click on body box- click on below icon- click on dynamic content and then search "CompromisedEntity" and select it and click on Add
+
+8) click on body box- click on below icon- click on dynamic content and then search "Description" and select it and click on Add
+
+Then click on save.
+
+# Team, I have added these parameter in the body section dynamically. so we will get these details in the email alert dynamically.
+
+you can add some another parameter in the body section as well.
+
+# So team, we have successfully create and setup the Logic app.
+
+# And this is how you can setup and send security alert to team.
+
+# currently, i dont have team channel to complete this alert setup with team channel, but you can follow these steps to setup and configure security alert woth team channel.
+
+

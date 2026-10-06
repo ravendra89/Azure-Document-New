@@ -1,0 +1,776 @@
+# Azure Function to Trigger Email Notifications using Azure communication service when New file uploads on Blob Storage.
+
+Note: First open the Azure function workflow diagram.
+
+# Hello Everyone, my name is Ravendra and welcome back to my channel.
+
+# Today's is Day-30 and in this class we will discuss and demonstrate Azure Function. We’ll explore its real-world use cases and learn how to use it effectively in real-time scenarios.
+
+# But, before watching this video, I highly recommend you to watch the Azure Functions theory class video in the playlist which is: "Day 29 – Basic Concepts of Azure Functions".
+
+This will help you to understand the content of this video much better.
+
+Note: Team note that, Azure Function is a very important service. As a Cloud or DevOps Engineer, you will frequently work with Azure Function to perform the task.
+
+# In this Video, I will walk you through setting up an Azure Function that sends email notifications Using Azure communication service whenever new file uploads to Azure Blob Storage.
+
+
+# We will cover everything from creating RG, Storage account, container, Azure Function App, Azure Function,  Azure communication service, and Azure Email communication service to setting up the necessary triggers and integrations.
+
+# Team, there are many use cases for Azure Functions. If you understand the concept, you can deploy any type of project using Azure Functions.
+
+# So team, first let's understand what we are going to do in today's demo.
+
+Note: Let's start by understanding the workflow diagram.
+
+1. so, when user uploads a file to an Azure Storage Account container.
+
+2. then, Event Grid Detects the Upload
+
+Basically, Azure Event Grid continuously monitors the Storage Account.
+
+Whenever a new file (blob) is uploaded, Event Grid automatically generates an event.
+
+This event is then sent to Azure Functions as a trigger.
+
+3. After that, Azure Functions receives the event notification along with event details such as:
+
+File name
+Upload time
+Container information
+Other metadata
+
+The Azure Function then invokes Azure Communication Services (ACS) by passing the complete event data.
+
+4. Then, Azure Communication Services processes the request and sends an email notification.
+
+Basically, Azure Email Communication Service handles the email delivery in the Communication service.
+
+5. Finally, the user receives the notification in email.
+
+6. So team, this is the complete workflow of today's demo.
+
+7. Now, let's move to the GitHub repository.
+
+> Team, this is my GitHub account, and I have prepared (प्रिपेयर) some very useful documentation for this demo.
+
+Note: Open the Day-30 repository and provide a brief overview.
+
+> As you can see here, these are the Azure Function source code files that we will use in today's demo to deploy our Azure Function.
+
+> I have also prepared the complete Azure Functions setup and deployment guide in the README.md file.
+
+> You can see that all the required steps are clearly documented in the README.md file.
+
+> In these steps, we will first complete all the prerequisite requirements.
+
+> If you scroll down, you will notice that there are two options available for creating Azure Function code locally.
+
+> You can choose any option to perform this demo.
+
+> First, I will explain Option 1 so that, you can understand how to create an Azure Function project locally from scratch.
+
+> However, for the actual demo, I will use Option 2 because I already have the latest and fully updated Azure Function code available in this GitHub repository.
+
+> Before proceeding with Option 2, I wanted to show you how Azure Functions can be created locally. That's why I'm first walking through Option 1.
+
+> You can follow the documented steps to perform the demo on your own.
+
+> You can clone this repository. I will also provide the GitHub repository link in the video description.
+
+> Team, don't forget to star this repository so that you can stay updated with future changes and improvements.
+
+> Now, let's open the README.md file and follow the steps to perform today's Azure Functions demo.
+
+> One more thing, team:
+
+If you find this content helpful, please like the video and subscribe to the channel. Your support helps us create more useful content.
+
+Thank you!
+
+8. To deploy an Azure Functions project, we first need to complete some prerequisites(प्री-रिक्विज़िट्स), such as:
+
+
+1. Install Python 3.12:
+Python is required because we are going to deploy a Python-based Azure Function. It provides the runtime environment to write and execute function code.
+
+2. Install Azure CLI:
+Azure CLI is required to log in to the Azure portal and interact with Azure resources. It allows you to create, manage, and deploy Azure services directly from the command line or VS Code terminal.
+
+3. Install Visual Studio Code (VS Code):
+VS Code is a lightweight code editor used to write, edit, and manage your Azure Functions project. It also supports extensions like Azure Functions and Python, which make development and deployment easier.
+
+4. Install Azure Functions Core Tools:
+Azure Functions Core Tools are used to develop, run, test, and deploy Azure Functions locally from your machine. They allow you to simulate the Azure Functions runtime environment on your local system before deploying to Azure.
+
+
+9. Since, I have already installed all these tool in my pc. but let me show, how you can install it.
+
+
+10. Once you download and install all these things, go to you local pc and create one empty folder on your PC. Then search for VS Code on your local system and open it.
+
+> open the newly created folder on vs code.
+
+11. Now team, lets verify all the tools whethere it is installed or not.
+
+> Check the Azure cli version: az --version
+
+> Check the function tool version: func --version
+
+> Check the python version: python3 --version
+
+11. Now next steps is to, install Extensions on you vs code.
+
+ I have already installed all the required Extensions. but let me show, how you can install it.
+
+> Azure CLI Tools → this is used to Run Azure CLI to log in to Azure portal and interact with Azure resources, and create and manage resources from VS Code
+
+
+> Azure Functions tool → this is used to Build & deploy functions locally.
+
+> Azure Resources → this is used to Manage Azure login & resources
+
+> Python → this is used to Python language support
+
+> Pylance → Advanced Python IntelliSense and type checking
+
+Note: Make sure you install all the extensions provided by Microsoft.
+
+#################################################################################################
+
+12. Now team, follow the option-1 to create Azure function locally with Event Grid trigger:
+
+# Option-1:
+
+13. In Visual Studio Code, press "fn + F1" OR you can press "ctrl + shift + p" -  enter  Azure Functions: Create new project and select it.
+
+
+> For your project workspace, select a directory Name and location. Make sure that you either create a new folder or choose an empty folder for the project workspace.
+
+  - Don't choose a project folder that's already part of a workspace.
+
+> At the prompts, provide the required information:
+
+     - Select a language: Select Python
+
+     - Select a Python programming model: Select Model V2
+
+     - Select a Python interpreter to create a virtual environment. Select your preferred Python interpreter. If an option isn't  shown, enter the full path to your Python binary.
+
+     - Select a template for your project's first function: EventGrid Trigger
+
+     - Provide a function name: EX.	Enter EventGridBlobTrigger.
+
+     - Select a workspace window: Open in current window
+
+14. Once we create the function locally, it will generate these files you can see here. so lets understand the use case of these file first:
+
+1. function_app.py:
+This is the main function code file. It contains your trigger definitions and the core function logic.
+
+2. host.json:
+This file controls the Azure Functions runtime configuration, including:
+
+Logging
+Extensions
+Runtime behavior
+Timeout settings
+
+3. local.settings.json:
+This file stores:
+
+Environment variables
+Secrets
+Connection strings
+
+Note: If you want to test your function locally, you need to add values such as ACS_CONNECTION_STRING, ACS_SENDER_EMAIL, ACS_RECIPIENT_EMAIL, and storage account connection strings in the local.settings.json file.
+
+However, for today's demo, I will follow the steps provided in Option 2 of the README.md file to deploy the function code directly to the Azure Function App. Therefore, we can skip this step.
+
+4. requirements.txt:
+This file is used to define the Python packages required for your application.
+
+Make sure that some important packages are included such as:
+
+azure-functions
+azure-communication-email
+
+
+15. If you go back to the GitHub repo, you will find similar function code files that we recently generated.
+
+16. You can copy them one by one and update your local code.
+
+17. I explained Option 1 because my intention was to show how you can generate a function code locally.
+
+18. Okay, let’s delete the generated files and clone the existing function code from the GitHub repository.
+
+and follow the Option-2 to create Azure function locally with Event Grid trigger:
+
+Note: Team dont worry, you can find all the steps in the readme.md file on the githubrepo.
+
+19. so first things go to githubrepo and Clone the "Azure-Cloud-From-Basics-To-Advanced" repository
+
+> So copy the github repo url and go back to vs code and type commands:
+
+git clone ....and paste githb url here.
+
+Note: Make sure that you have downloaded and installed the git in you PC.
+
+> so we have cloned the github url. you can see the repo name which is- Azure-Cloud-From-Basics-To-Advanced
+
+> Now, Open the Github repository in you VS code.
+
+> Lets Review the code first:
+
+in function.py file: if you want you can change the function name
+
+Current function name: EventGridBlobTrigger
+
+20. now create a virtual environment for python base azure function.
+
+For Windows OS:
+
+Open Terminal → New Terminal in VS code and run following commands:
+
+1. install the venv module: python -m venv .venv
+
+2. Activate it: 
+     
+run: .venv\Scripts\Activate.ps1
+
+
+3. now open the requirements.txt and verify if the "azure-functions" and "azure-communication-email" are included.
+
+> next step is to  Install these package that are listed in the requirements.txt file.
+
+> Go to function app folder and run following command base on the OS:
+
+ For Windows:
+
+py -m pip install -r requirements.txt
+
+python -m pip install -r requirements.txt
+			   
+21. So team, we have successfully created the function locally, now its time to deploy our function on function app. team dont worry i will explain python function code after the deployment.
+
+22. So lets go to Azure portal: team this is my azure portal console. now first step is to Registered the Resource providers on subscription level which are:
+    
+* Microsoft.NetworkFunction
+
+* Microsoft.Storage
+
+* Microsoft.Web
+
+* Microsoft.Communication
+
+    
+> But your question might be, What are the Resource providers?
+
+so, In an Azure subscription, resource providers are services that define and manage specific types of Azure resources. Before you can create a resource, the  corresponding resource provider must be registered in the subscription.
+
+? And Why we need to Registered the Resource providers?
+
+Because:
+Each Azure service is controlled by a resource provider
+If the provider is not registered, you cannot create related resources
+Registration tells Azure: “Enable this service in my subscription”
+
+> lets see how to Registered the Resource providers:
+    
+select your subscription → click on Resource providers → search the provider (e.g., Microsoft.Storage) → click Register → wait a few seconds until the status changes to Registered.
+
+23. Now lets Create Function App, Azure Communication Service and Azure Email Communication Service.
+
+24. So lets first create Azure function App.
+
+> Search Function App.
+
+Note: open the Function app and then explain below points:
+
+> Team, I am creating the Azure Function App using the Azure Portal. However, you can also use Azure CLI or any other supported method to create these resources.
+
+> I want to demonstrate the process using the Azure Portal GUI so that you can clearly understand the mandatory configurations and resources required to create a Function App.
+
+> Once you understand these requirements, you can use any method—such as the Azure Portal, Azure CLI, ARM templates, Bicep, or Terraform—to create a Function App in the future.
+
+> One important thing to note is that, regardless of the method you use to create a Function App, you may not always get the option to create a function directly from the Azure Portal within the Function App. In such cases, you will need to create the function locally and then deploy it to the Function App.
+
+> Such as: You can use:
+
+Visual Studio Code (using Azure Functions Extension) to deploy function code. that method we have already used recently.
+
+OR
+
+You can use:
+
+Azure CLI: to deploy functions and manage Function Apps.
+
+
+Or any other available tool to deploy your function.
+
+
+25. Team, dont get confuse about Azure Function app and Azure Function. 
+
+of-course your question should be: Why do we need to create a Function App when we create an Azure Function?
+
+So, When creating an Azure Function, you need to create a Function App because the Function App serves as the container and runtime environment for your functions.
+
+It’s similar to other Azure services—for example, when we create a storage resource, we first need to create a Storage Account. Likewise, when we create a Runbook,
+we must first create an Azure Automation Account.
+
+26. one more important thing: You can create multiple functions within a single Azure Function App, but all functions in that Function App must use the same runtime environment
+that was selected when the Function App was created.
+
+> For example, if the Function App is created using the Python runtime, then all functions within that app must be written in Python. 
+you cannot mix Python with JavaScript, or any other runtime language in the same Function App.
+
+27. Ok Team Let's see how we can create an Azure Function App using the Azure portal.
+
+
+28. Choose hosting plans. I am selecting "Flex Consumption" which is already selected by default. but you can use other hosting plans.
+
+
+> So here subscription is already selected because currently i have only single subscription.
+
+> Next is, Select Resource Group if you have already created or you can create from here. I am creating new. so click on create new and mention the RG name.
+
+> Function App name: test-azure-function
+
+> Region: select Region, that you used during the creation of RG.
+
+in my case Region is- EASTUS
+
+
+> Runtime stack(स्टैक): I am selecting Python because my function code is written in python. you can select any of these option based on your function code.
+
+Note: Runtime stack is basically refers to the language and environment in which our function code runs.
+
+Think of its like a engine behind your function app — it determines what language you're coding in and how Azure will execute it.
+
+> Runtime versions:  I am selecting 3.12
+
+Note: Azure Functions Runtime Versions refer to the underlying versions of the Azure Functions host — the platform that actually runs your function code. These versions define:
+
+What features are available
+
+What languages and language versions are supported
+
+How your functions behave (performance, triggers, bindings, etc.)
+
+29. Instance size: I am going with default which is: 2048 MB
+
+
+30. Zone redundancy(रिडन्डेंसी): Here we can enable Zone redundancy.
+
+Zone redundancy means, your function app is automatically distributed across multiple availability zones within a region, so it keeps running even if one zone goes down.
+
+> i am not enabling this feature for now.
+
+31. Click on next to storage section:
+
+Here, you can Select a existing storage account if you have or Azure will create a new storage account with this name.
+
+So, I am creating new because i dont have existing Storage account.
+
+> Now team, your questing should be, Why do Azure Functions APP require a Storage account?
+
+An Azure Functions app requires an Azure Storage account because it is used for core runtime operations such as storing function metadata, managing triggers and bindings state, handling logging and execution history, and supporting features like scaling and the Functions host coordination.
+
+
+32. Click on next to Azure OpenAI:
+
+What is Azure OpenAI?
+
+Azure OpenAI Service is a service from Microsoft that gives you access to powerful AI models through secure APIs hosted on Azure.
+
+When you use Azure OpenAI inside an Azure Function App:
+A request comes into your function from HTTP API call
+Your function code calls the Azure OpenAI API
+The AI processes the input
+And Your function returns the AI-generated response
+
+> this is optional, and i am not enabling the Azure OpenAI for now.
+ 
+
+33. Click on next to networking tabs and here you can see that public access is enabled by default. leave it default because i am just doing testing.
+
+34. Now click on next to monitoring tab: and here you can enable application insights if it not enabled. in my case it is enabled by default and it will create application insights
+with this name.
+
+Note: Application Insight is an Application Performance Management (APM) service. when we Enable it, it will be automatically monitor your application. 
+It will detect performance anomalies, and includes powerful analytics tools to help you diagnose issues and to understand what users actually do with your app.
+
+
+35. Click on next to Durable Functions.
+
+Lets understand about Durable Functions first:
+
+Durable Functions is an extension of Azure Functions that lets you write stateful workflows in a serverless way.
+
+Normally, Azure Functions are stateless (each execution forgets everything). however, Durable Functions adds the ability to remember state, coordinate steps,
+and run long workflows reliably.
+
+> With Durable Functions, you can:
+
+Chain multiple functions together
+
+Maintain state between steps
+
+Handle long-running processes (minutes, hours, even days)
+
+Automatically retry failed steps
+
+Wait for external events (like user input or approvals)
+
+So, I am not using Durable function feature for now. so, click next to Storage section.
+
+36. Now click on next to deployment section. and here you can Set up continuous deployment to easily deploy code from your GitHub repository via GitHub Actions.
+
+> i am not enabling this feature for now.
+
+
+37. Now, Click on next to Aunthetication tab and select Authentication type for the:
+
+Host storage (AzureWebJobsStorage)
+Deployment storage
+and for Application Insights
+
+So i am selecting "Manage identity" for all.
+
+38. click on next to Tags section and if you want you can assign the tag for the function app. but this is optional you can ignore it.
+
+39. click on "Review + create"- then click on create to create function app.
+
+40. Now click on go to resource, and here you can see the Azure function app. but you can see here there is no option in the function tab to create it from UI.
+
+41. Ok team, so we have successfully created a Function App.
+
+
+42. Now next, lets create Azure Email Communication Service and Azure Communication Service 
+
+
+43. First, lets create Email Communication Services.
+
+Why it is required.
+
+Team i am using this to register sender email address, so the we can use that email or domain to send notification.
+
+Because, we cannot use a Gmail or Outlook address as the sender in ACS. The sender must come from a domain you own or from Azure's managed domain.
+
+Best Solution is to — Use Azure Managed Domain (Free & Instant) whcih is email communication service.
+
+Since we don't have a custom domain, so we use the Azure-managed domain — it's free and takes 1 minute to set up.
+
+Lets see how to do that:
+
+Go to Azure Portal → search "Email Communication Services" → create one if you don't have it
+Click on setting- Provision Domains → + Add → Azure managed domain → Add
+
+44. So team we have created a Email communication service and added a azure manage domain. now lets create communication service and Link Azure Email Communication Service to ACS resource.
+
+Why are we linking Email Communication Service to ACS?
+
+> First things: Azure Email Communication Service is a backend service of communication service that actually handles email sending.
+
+We link it to ACS because:
+
+ACS does not send emails directly
+Email service is plugged into ACS as a capability
+This gives a consistent API experience for developers
+You can manage all communication channels in one place (ACS)
+
+> Ok lets create Communicatino service first:
+
+1. search- Communication Service - provide the required details and click on create
+
+2. Now lets link azure Email Communication Service to azure communication service.
+
+So, Go to Communication Services → Email → domains - click on connect domains - mention the requred value.
+
+Subscription:
+Resource Group:
+And Email Service you just created.
+Now click on connect.
+
+Note: If you click on domain- here you can see the Email communication service, domain and the status is connected.
+
+45. now in the Email communication service, go to Setting- Provision domain - click on domain name - email service- mainfrom address and dowmload csv.
+
+Later we will use sender address in the Function app environment variable.
+
+46.  next step is to Create Azure storage account with container for testing.
+
+> search storage account.
+
+> lets create container in the storage account
+
+> so team, this is done.
+
+47. Now next is to Create EventGrid Subscription for storage account.
+
+**Note:** So team, I am creating an Event Grid subscription using Azure CLI because this is the easiest way to create it.
+
+> Lets go to the GitHub repository and check the Azure CLI command in the README.md file.
+
+> Based on your OS type, you can use the appropriate command.
+
+> As you can see in the command, I am using the trigger types for when a new blob is created or deleted.
+
+> Azure Event Grid will then process the `Microsoft.Storage.BlobCreated` and `Microsoft.Storage.BlobDeleted` events.
+
+> Now let’s copy this command, go back to VS Code terminal, and paste it.
+
+> Now team, you can notic one thing, we cannot see the “topic name” in our command?
+
+> Your question might be, what is topic in azure Eventgrid and Why we cannot se the topic in this command?
+
+> Azure Event Grid Topic: A topic is an endpoint that receives events from publishers and makes them available to subscribers for event processing. It serves as a logical channel for a collection of related events. It acts as the entry point for events before they are routed to subscribers.
+
+> we cannot see the topic name here, Because, we are using a system topic, not a custom topic.
+
+there is three types of Event Grid topics:
+
+1. System Topic: it is created Automatically  for Azure services that publish events such as.
+
+Storage Account
+Azure Resource Group
+Azure subscription
+Key Vault, etc.
+
+# in this case:
+
+✔ No topic name needed in your command
+✔ Azure automatically creates system topic for Storage Account internally.
+✔ You only reference --source-resource-id
+✔ Topic management is hidden for system events
+
+2. Custom Topics:
+
+it is Created by you for your own applications. in the custom topic, Your application publishes custom events to the topic.
+Event Grid then distributes them to subscribers such as:
+Microsoft Azure Functions
+Webhooks
+Logic Apps
+Service Bus queues
+
+3. Partner Topics:
+
+it is Used by third-party SaaS providers that integrate with Event Grid.
+
+Examples include external services sending events into your Azure environment.
+
+Note: We will verify whethere Event Subscrption and system topic is created or not once the deployment of Event Subscrption will be completed.
+
+
+> Ok, Now we need to replace these values from the commands which are:
+
+* Event subscription name: you can mention any name of the event subscription
+* Source resource ID
+* Azure Function endpoint URL
+
+---
+
+### lets see, How to get these values:
+
+> Event subscription name: you can mention any name of the event subscription
+
+> For the Source Resource ID:
+
+* Go to Azure Portal
+* Open Storage Account
+* Navigate to **Settings → Properties**
+* Copy the **Resource ID**
+
+---
+
+** And for Azure Function Endpoint URL:**
+
+We have mention this in the GitHub repository.
+
+So go back to github repo: and you can see here this is the Function Endpoint URL. i found this from the Microsoft documentation.
+
+You can refer to the given Microsoft URL:
+
+```
+https://<FUNCTION_APP_NAME>.azurewebsites.net/runtime/webhooks/blobs?functionName=Host.Functions.EventGridBlobTrigger&code=<BLOB_EXTENSION_KEY>
+```
+
+In this URL:
+
+* Replace `<FUNCTION_APP_NAME>` with your Function App name. 
+
+* And If your function name is different, replace `EventGridBlobTrigger` accordingly.
+
+* Replace `<BLOB_EXTENSION_KEY>` with actual key
+
+> Team lets see, how To get the `<BLOB_EXTENSION_KEY>`:
+
+* Go to Azure Portal→ Open your Function App → App Keys → System Keys → blobs_extension
+
+> Copy this value and update the command.
+
+> So team, we have now updated the Azure CLI command to create the Event Grid subscription. Let’s press Enter.
+
+
+> Now team, let’s verify whether the Event Grid subscription and system topic is created successfully or not.
+
+
+> Go to Azure portal and search- Search Event Grid - Azure service event - system topic. 
+
+now team you can see here. it is created. you can also see the event subscrption here along with endpoint which is Azure function and event type as well.
+
+# Team,we can also verify the Event subscription from the storage console as well.
+
+so, go to storage account -click on Event - Event Subscriptions - scroll down. now you can find all the details here.
+
+48. Now team next step is to update function app environment variable so that our function code can get the requred value from the environment variable.
+
+> Go to Azure Portal → Function App → setting → Environment variable → App Settings and add environment variables:
+
+  * ACS_CONNECTION_STRING: Value of the Azure communication service connection string.
+
+  * ACS_SENDER_ADDRESS: value of the Azure Email communication service sender address.
+
+  * TO_EMAIL: Value of the email where we want to send notification.
+
+
+49. Now lets do the testing.
+
+Go to the test storage account and upload any file to the container to verify that the Event Grid triggers the Azure Function, and that the Azure Function invokes ACS to send an email notification.
+
+Note: Team you can upload any file name such as- .txt, .jpg, .pdf, anything.
+
+50. Now open your Email and check if you received notification.
+
+> team, you can see here, I got the notification on email which is:
+
+> So team, what is happening here is that once we upload a file to the container, Event Grid detects the event because we have selected the event type for when a new blob is created.
+
+Event Grid then triggers the Azure Function, and based on the deployed Python code in the function, the function invokes Azure Communication Services. Azure Communication Services then sends a notification to the given email ID.
+
+51. Team, I have also defined a trigger type for when a blob is deleted. So if you delete the blob, you will again receive a notification.
+
+Let’s try to delete the blob and check the email notification.
+
+As you can see here, I have received the notification that the blob has been deleted.
+
+52. So this is how we have successfully completed our project on Azure Functions.
+
+53. Now, team, I want to give you a short overview of the function code.
+
+Let’s go back to the Function App and understand the function features and code.
+
+1. So in the function code, first we are Importing a required libraries:
+
+logging → Used to print logs (success/error messages)
+
+os → Used to read environment variables (config values)
+
+azure.functions → Provides Azure Functions runtime support
+
+EmailClient → Used to send emails via Azure Communication Services
+
+2. Creating a Function App instance
+
+app = func.FunctionApp()
+
+it will Initializes the Azure Function App
+
+This is the main container where all triggers/functions are registered
+
+3. Then, we are Defining Event Grid Trigger Function
+
+@app.event_grid_trigger(arg_name="event")
+def EventGridBlobTrigger(event: func.EventGridEvent):
+
+This tells Azure:
+Run this function when an Event Grid event occurs”
+event contains details about the storage event (blob created/deleted/etc.)
+
+4. data = event.get_json()
+Extract event data
+Converts the incoming Event Grid event into JSON format
+
+5. blob_url = data.get("url")
+
+This will Extracts the full URL of the blob that triggered the event
+
+6. blob_name = blob_url.split("/")[-1] if blob_url else "Unknown"
+
+it will Extract blob name from URL
+
+Basically it will Takes last part of URL as file name
+
+Example: file1.txt from full URL
+
+If URL is missing → sets name as "Unknown"
+
+7. 
+conn_str = os.getenv("ACS_CONNECTION_STRING")
+sender = os.getenv("ACS_SENDER_ADDRESS")
+recipient = os.getenv("TO_EMAIL")
+
+It will get these value from environment variables of Azure Function App settings.
+
+8. if not all([conn_str, sender, recipient, blob_url]):
+
+Here, Validating required values. such as:
+Checks if any required value is missing
+If missing:
+logs error
+stops execution
+
+9. client = EmailClient.from_connection_string(conn_str)
+Create Email client and Connects to Azure Communication Services Email system
+
+10. 
+message = {
+    "senderAddress": sender,
+    "recipients": {"to": [{"address": recipient}]},
+    "content": {
+        "subject": "Blob Created Notification",
+        "plainText": f"New blob created:\n\nName: {blob_name}\nURL: {blob_url}"
+    }
+}
+
+This line:
+
+Prepares email content:
+
+From address (sender)
+To address (recipient)
+Subject line
+Body with blob name and URL
+
+11. client.begin_send(message).result()
+
+It will Sends email using Azure Communication Services
+.result() ensures execution waits until email is sent
+
+12. logging.info("Email sent successfully")
+
+It will store success message in Azure logs
+
+13. except Exception as e:
+    logging.error(f"Email send failed: {e}")
+	
+This is use for Error handling.
+If anything fails:
+catches error
+logs failure reason
+
+
+54. Expalin integration tabs, invocation, logs etc.
+
+
+
+55. So team, I have given my 100% to this Azure Functions demo, and this is enough. If you understand the concept, you can deploy any type of project using Azure Functions.
+
+56. This demo is completed now, Thanks for watching my video see you in the next video thank you.
+
+
+
+
+
+
+

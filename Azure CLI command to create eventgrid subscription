@@ -1,0 +1,112 @@
+# Function code:
+import logging
+import azure.functions as func
+
+app = func.FunctionApp()
+
+@app.event_grid_trigger(arg_name="event")
+def EventGridBlobTrigger(event: func.EventGridEvent):
+    logging.info(f"Event Type: {event.event_type}")
+    logging.info(f"Subject: {event.subject}")
+    logging.info(f"Data: {event.get_json()}")
+	
+# endpoint url for eventgrod
+
+https://ravendra02-fa.azurewebsites.net/runtime/webhooks/blobs?functionName=Host.Functions.EventGridBlobTrigger&code=hh1_YMcKls4lWLRsX2Zb9qSkEVT-ZDaohkhjGgmF81ixAzFu8AMOqg==
+
+# subject of eventgrid for topic:
+
+/blobServices/default/containers/uploads/blobs/test
+
+# command to create eventgrid subscription (single line):
+
+az eventgrid event-subscription create --name <event-subscription-name> --source-resource-id "<storage-account-resource-id>" --endpoint-type azurefunction --endpoint "<function-resource-id>" --included-event-types Microsoft.Storage.BlobCreated Microsoft.Storage.BlobDeleted
+
+Example:
+
+az eventgrid event-subscription create --name egsub02 --source-resource-id "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<storage>" --endpoint-type azurefunction --endpoint "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Web/sites/<functionapp>/functions/EventGridBlobTrigger" --included-event-types Microsoft.Storage.BlobCreated Microsoft.Storage.BlobDeleted
+  
+  
+PowerShell version:
+
+az eventgrid event-subscription create `
+  --name <event-subscription-name> `
+  --source-resource-id "<storage-account-resource-id>" `
+  --endpoint-type azurefunction `
+  --endpoint "<function-app-function-resource-id>" `
+  --included-event-types Microsoft.Storage.BlobCreated Microsoft.Storage.BlobDeleted
+
+
+Example:
+
+az eventgrid event-subscription create `
+  --name egsub02 `
+  --source-resource-id "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<storage>" `
+  --endpoint-type azurefunction `
+  --endpoint "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Web/sites/<functionapp>/functions/EventGridBlobTrigger" `
+  --included-event-types Microsoft.Storage.BlobCreated Microsoft.Storage.BlobDeleted
+  
+
+
+# Why you don’t see “topic name” in your command?
+
+In my case:
+
+Storage Account → Event Grid Subscription → Azure Function
+
+so, we are using a system topic, not a custom topic.
+
+there is Two types of Event Grid topics:
+1. System Topic: this is use when we configure azure source service like:
+
+Storage Account
+Azure Resource Group
+Azure subscription
+Key Vault, etc.
+
+# in this case:
+
+✔ No topic name needed in your command
+✔ Azure automatically creates system topic for Storage Account internally.
+✔ You only reference --source-resource-id
+✔ Topic management is hidden for system events
+
+2. Custom Topic: Used when YOU publish events yourself.
+
+
+# you can verify whethere Event Subscrption and system topic is created or not.
+
+lets check.
+
+Search Event Grid - Azure service event - system topic. 
+now team you can see here. it is created. you can also see the event subscrption here. 
+you can also see the endpoint which is Azure function and event type as well.
+
+# Team, you can also verify the Event subscription from the storage console as well.
+
+so, go to storage account -click on Event - Event Subscriptions - scroll down. now you can find all the details here.
+
+
+
+Note:
+Because you are using:
+
+@app.event_grid_trigger
+
+and Event Grid subscription for:
+
+Microsoft.Storage.BlobCreated and Microsoft.Storage.BlobDeleted
+
+👉 Your function will trigger when:
+
+✔ Any file is uploaded to the storage account
+✔ any file deleted fro mthe blob
+ Any blob type (txt, jpg, json, pdf, etc.)
+✔ Any size (within Azure limits)
+✔ Any folder path (unless filtered)
+
+
+
+  
+  
+

@@ -1,0 +1,41 @@
+#  what is the difference between Azure Arc agent and Azure Connected Machine agent?
+There is no difference; Azure Arc agent is the general term for the agents used by the Azure Arc platform, while the Azure Connected Machine agent is the specific agent
+installed on individual servers (Windows/Linux) to onboard them to Azure Arc-enabled servers. In essence, the Connected Machine agent is the primary component 
+that enables a non-Azure machine to be managed as an Azure resource. 
+
+# Latest Versionf Azure Arc agent:   1.57
+
+# What is Azure Update Manager?
+
+Azure Update Manager is the modern, built-in patch management service in Azure that helps you:
+
+Discover, assess, and install OS updates for Windows and Linux machines
+
+Schedule maintenance windows
+
+Automate reboots and pre/post scripts
+
+Get compliance and reporting
+
+Manage patches for Azure, Arc-enabled, and scale set VMs — all in one place
+
+It replaces the older “Azure Automation Update Management” solution (which relied on Log Analytics workspaces and Automation Accounts).
+
+# What is Azure Arc?
+
+Azure Arc is a service that help to connect and manage resources outside of Azure (on-premises servers, other cloud VMs, Kubernetes clusters, and databases)
+
+We use Azure Arc for patching when you want to manage OS updates and compliance for servers that are not running in Azure.
+
+# How to enable automatic upgrades for Azure Arc Agent?
+https://www.techielass.com/azure-arc-agent-automatic-upgrade/
+
+OR
+https://learn.microsoft.com/en-us/azure/azure-arc/servers/manage-agent?tabs=windows#automatic-agent-upgrade-preview
+
+# How to upgrade Azure Arc agent version automatically for all the Servers using Azure Update Manager (AUM)?
+
+https://learn.microsoft.com/en-us/answers/questions/5492073/how-to-upgrade-azure-arc-agent-version-automatical
+
+# Update the upgradation using Group policy on AD server
+https://learn.microsoft.com/en-us/azure/azure-arc/servers/manage-agent?tabs=windows

@@ -1,0 +1,42 @@
+# Open the documents first.
+
+# Hello Everyone, My name is Ravendra Tiwari, and welcome back to my channel.
+
+# Today is Day 29, and in this class, we will discuss and understand Azure Functions. In the upcoming video, we will explore its real-world use cases and learn how to use it effectively in real-time scenarios.
+
+# Team,
+
+The theory part is equally important before deploying any cloud service, so please watch this video until the end.
+
+# Team,
+
+This is my GitHub account, and I have created a handy document for Azure Functions.
+
+Note: Please open the Day-29 repository and provide a brief overview.
+
+You can clone this repository. I will also share the GitHub repository link in the video description.
+
+# Let's start by understanding everything about Azure Functions.
+
+# Team,
+
+Just a quick reminder—please like and subscribe to my channel. Thank you!
+
+# First of all, what is an Azure Function App?
+
+## Note:
+
+At the end of this session, I will also explain the following services:
+
+* Azure Communication Services
+* Azure Email Communication Service
+
+Since these services will be used in the upcoming Azure Functions demo, it is important to understand them as well.
+
+These are separate Azure services, but we will use them to set up notifications in our demo application. That is why I have included them in this session, so you can better understand how they work and how they integrate with Azure Functions.
+
+# Okay Team,
+
+The theory session is now complete. In the next video, we will perform a real-time job scenario demo using Azure Functions.
+
+Thank you for watching this video. See you in the next session. Thank you!

@@ -1,0 +1,164 @@
+# Hello Everyone, my name is Ravendra Tiwari and welcome back to my channel.
+# Today, we will learn how to set up and configure OS patching for Azure Windows and Linux VMs.
+
+# In this demo, we will use one of the most important services in Azure which is: Azure Update Manager.
+
+# Before starting the practical session, let’s first understand what OS patching is and why it is needed.
+
+# After that, we will understand the Azure Update Manager service in Azure, which is today’s topic.
+
+Note: Open the document and exaplain.
+
+
+Note: Team, Azure provides another feature to perform OS patching called Automatic Guest Patching for Azure Virtual Machines and Scale Sets.
+
+Let’s see where we can find this feature.
+
+Team, these are my existing Azure Windows and Linux virtual machines in two different region. you can create vms in the same region or different region.
+Go to the Operations section and click on the Updates option.
+
+From here, you can enable Automatic Guest Patching for Azure Virtual Machines. You can also enable the same feature for the VM, those belong to Virtual Machine Scale Sets (VMSS).
+
+When you click on Enable, you will see several options. Based on your requirements, you can choose the appropriate options and then click Save.
+
+For example:
+
+Periodic assessment: Enable this setting to automatically check for updates every 24 hours.
+
+Hotpatch: Hotpatch allows you to install security updates on your Windows Server Azure Edition VMs and supported Arc-enabled machines with fewer reboots.
+
+Patch orchestration: This setting allows you to control how patches are applied to your virtual machine.
+
+I am not going to use this feature because when we enable Automatic Guest Patching on our Azure VMs, the patching of Security and Critical updates is handled entirely by Azure. We do not have control over the timing, nor can we choose which classifications or specific updates to install.
+Everything is managed by Azure.
+
+However, by using Azure Update Manager, we have full control over OS patching.
+
+# Okay team, the theory part is done. Now let’s start the demo and use the Azure Update Manager service to set up OS patching for both Windows and Linux VMs.
+
+# Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+1. First, search for Azure Update Manager and click on it.
+
+2. In the Resources section, click on Machines. Here, you can see that both our Windows and Linux VMs are available.
+
+3. Today, we will set up and configure OS patching for both virtual machines.
+
+4. If you select any VM, you will see several options available.
+
+5. If you click on Check for updates, Azure will check whether any updates are available for the selected VM.
+   You can view the update status in the Update status section.
+
+6. One-time update option: Team, if you want to apply updates only once and do not want to schedule OS patching, you can choose this option and update the VM.
+
+7. Scheduled update: means you can create a recurring update schedule for the selected VM.
+
+For example, if you want to apply OS patching every month on a specific date and time, you can create a schedule.
+
+8. Update setting: 
+Using update settings we can control the update settings on our Azure virtual machines (VMs) and Azure Arc-enabled servers for one or more machines.
+
+9. Action: we can reboot the instance manually from the action tab.
+
+10. Ok team lets setup the os patching for our existing windows and Linux VM.
+
+11. To do this, first we need to update the settings.
+
+Select the VMs, click Update settings, and then click Update settings again.
+
+Under Patch orchestration, select the option Customer Managed Schedules (current).
+
+This option is important when scheduling OS patching, as it allows us to manage everything from our end.
+
+Finally, click Save to apply and save the settings.
+
+
+12. Now, team, to schedule the os patching, we have to create maintenance configuration. 
+
+13. we can create maintenance configuration directly from the "schedule updates" tabs.
+
+lets see how to do that- so select the vms and click on Schedule updates - and from here you can create new maintenance configuration or you can use existing one.
+
+14. But, we can directly create maintenance configuration from manage tab.
+
+lets see how to do that.
+
+15. click on "manage" - click on maintenance configuration - then click on create
+
+16.  On the Basics tab, select Subscription, Resource Group, and all options in Instance details.
+
+17.mention the Configuration name - you can mention any name of the maintenance configuration
+
+select all the other option.
+
+Note: Reboot setting: in the the production VM, we need to select reboot setting- never reboot.
+after that, we can reboot the server manually.
+for other environment VM, we can select the option which is reboot if required.
+
+then, after the patch, if required server will be rebooted.
+
+
+18. Now, let’s schedule the OS patching. Based on the schedule, Azure will trigger the maintenance configuration to apply the patches.
+
+Select Add a schedule. In Add/Modify schedule, specify the schedule details, such as:
+
+Start on
+Maintenance window (in hours)
+Repeats (monthly, daily, or weekly)
+Add end date
+Schedule summary
+
+19. click on next to Resource tab - now click on add resource and here we have to select our vms.
+
+20. Dynamic Scope : Dynamic scoping is a capability of scheduled patching in Azure Update Manager. we can use it to:
+
+Group machines based on criteria such as subscription, resource group, location, resource type, OS type, and tags. This grouping becomes the definition of the scope.
+
+I dont required this feature for now so, click on next to update tab.
+
+21. On the Updates tab, specify the updates to include in the deployment, such as:
+
+include update classifications: you can include the software package that you want to update.
+
+Here you can include or exclude particular KB ID/packages. suppose, if you want to exclude php or java related patches then we can exclude that packages.
+
+
+So, in the updates section - click on Include update classification and here you can select the updates type as you want.
+
+like i am selecting all for both windows and linux vms. now click on add.
+
+22. click on next to events:  this means, we can Configure pre and post events that allow you to execute user-defined actions before and after the scheduled maintenance configuration.
+so, i am not usigng this feature for now. so click on next to Tags tab, assign tags to maintenance configurations if you want.
+
+23. On the Review + create tab, verify your update deployment options, and then select Create.
+
+24. Now, team we have successfully created the Maintenance configuration and schedule os patching as well.
+
+25. Now, go back the Azure update manager - under the manage tab - click on Maintenance configuration - here you can the Maintenance configuration that we created recently.
+
+26. click on the Maintenance configuration. 
+
+27. now, in the setting section- click on resource - now you can see our vms here. and team, you can click on add to add more existing VM for the os patching. 
+
+28. in the schedule section- you can change the schedule date and time.
+
+29. you can modify the updates setting in the updates section.
+
+30. History section- right now i dont have any history but once patch applied you can see the patch history here.
+
+31. if you go back to Azure Update Manager console - and in the monitor section if you click on new alert and rule - from here you can setup the alert for os patching as well.
+
+32. OS patching well be started based on the scheduled date and time. 
+
+33. this is how you can setup and configure of patching for the VM using Azure Update Manager.
+
+34. Ok team, this demo is done now. Thanks.
+
+
+
+
+
+
+
+
+

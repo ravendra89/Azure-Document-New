@@ -1,0 +1,29 @@
+# Azure Monitor 
+# Hello Everyone, my name is Ravendra Tiwari and welcome back to my channel.
+
+# Today, we will discuss one of the most important service which is — Azure Monitor. 
+In this video, we will cover the theoretical part, and in the next video, I will use the Azure Monitor resource to create and set up monitoring alerts.
+
+# Lets start:
+#Team, Just a quick reminder before we get started—if you find this Channel helpful,then please like and subscribe to my channel Thanks."
+
+# So, our Question should be: Why do we need monitoring for any type of cloud services or resources?
+
+Answer is:
+Using cloud services or resources alone is not enough. We also need to monitor their utilization, performance, and availability to ensure they are operating
+efficiently and reliably. Monitoring helps us to identify issues such as unexpected downtimes, performance bottlenecks, or resource overutilization before they impact users.
+It also helps with managing costs, ensuring security, and meeting compliance requirements.. That’s why monitoring to cloud services is essential.
+
+# Note: Open Azure Monitor documents and explain it.
+
+# Now, open Azure portal, Search "Monitor" and show the Azure monitor dashboard.
+
+Team, this is the Azure Monitor dashboard. As you can see, there are many features available that we can use to set up alerts.
+
+In the upcomming video, I will use some important features to configure alerts.
+
+# So, team, this has been done now.
+
+# thanks for watching my video, see you in next video thanks.
+
+
