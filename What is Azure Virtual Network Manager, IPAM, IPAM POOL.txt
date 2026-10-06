@@ -1,0 +1,101 @@
+# What is Azure Virtual Network Manager?
+
+Azure Virtual Network Manager is an Azure service for centrally managing and configuring networks across Azure.
+
+Imagine we have:
+
+Azure Subscription
+│
+├── VNet A
+├── VNet B
+├── VNet C
+├── VNet D
+└── VNet E
+
+Instead:
+
+ Azure Virtual Network Manager manages and coordinates networking configurations across our VNets.
+
+Without Network Manager, we may have to configure networking separately for each VNet.
+
+Azure Virtual Network Manager gives a central place to manage things such as:
+
+Network connectivity between VNets
+Security Admin Rules (centrally enforced security rules across VNets)
+Network groups (logical groupings of VNets for applying policies)
+Network topology
+Network configurations across multiple VNets/subscriptions
+
+Think of it like:
+
+             Azure Network Manager
+                     │
+      ┌──────────────┼──────────────┐
+      │              │              │
+    VNet A          VNet B         VNet C
+
+
+Note: Azure Virtual Network Manager is the central service for managing Azure networking. It includes:
+
+Azure Virtual Network Manager
+│
+├── Connectivity configurations  (VNet peering, hub-spoke, mesh topologies)
+├── Network groups               (logical groupings of VNets for policy targeting)
+├── Security Admin Rules         (centrally enforced security rules across VNets)
+└── IPAM (IP Address Management)
+    └── IPAM Pools               (containers of IP address space allocated to VNets)
+
+# What is IPAM?
+
+IPAM = stands for IP Address Management. It's the overall concept/system for managing IP addresses.
+
+It answers questions like:
+
+Which IP ranges do we own?
+Which ranges are available?
+Which ranges have already been allocated?
+Which VNet is using which range?
+How do we avoid overlapping IP ranges?
+
+# What is an IPAM Pool?
+
+An IPAM Pool is basically a container of IP address space that Azure can allocate from.
+
+
+For example:
+
+IPAM Pool
+10.0.0.0/16
+
+Inside that pool, Azure can allocate smaller prefixes.
+
+Conceptually:
+
+                IPAM Pool
+                10.0.0.0/16
+                     │
+       ┌─────────────┼─────────────┐
+       │             │             │
+       ▼             ▼             ▼
+   VNet A         VNet B         VNet C
+ 10.0.0.0/24    10.0.1.0/24    10.0.2.0/24
+
+This helps prevent different VNets from accidentally being given overlapping address ranges.
+
+# IPAM and IPAM Pool are related, but they are not the same thing.
+
+
+IPAM = IP Address Management.
+
+It's the overall concept/system/process for managing IP addresses.
+
+IPAM = the address-management mechanism/concept.
+
+
+IPAM Pool: An IPAM Pool is a specific resource/container of IP address space.
+
+IPAM Pool = a specific pool of address space managed through IPAM.
+
+
+In short:
+Azure Virtual Network Manager manages our Azure networking, while an IPAM pool manages a pool of IP address space that can be allocated to VNets and other network resources.

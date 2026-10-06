@@ -1,0 +1,40 @@
+# post deployment steps for old DC migration to Entra manage domain service.
+
+1. login to source server windows server- search - services  - and check of any service is running throudh domain account. if not then ok.
+mostly service is running with \local this is ok. ignore it.
+
+2. Login to source server and create local user
+add that user to administrator group (change the location to vmname...)
+
+3. thispc - properties - change setting - change domain to workgroup and save it.
+
+Note: we also need to note old domain name. so that, if any issue happen we can revert the change.
+
+4. restart the system.
+5. go to server and configure the dns setting ( nic- mention two entra id private ip to dns server setting)
+
+Note: we need to note old dns server details. so that, if any issue happen we can revert the change.
+
+6. Login the server with local user credentials.
+
+7. CMD - Run following to verify is dns server is configured. it will show the entra manage domain service ip.
+
+nslookup configo.com
+
+8. thispc - properties - change setting - change  workgroup to domain(configo.com) and save it
+
+9. this time- login the server with entra id manage domain service member account credentials.
+
+10. go to computer management - local user and group - administrator group - add devlopement group to administrator group.
+
+11. remove the ravendra.tiwari local user credentials from administrator group.
+also delete this user from the user list.
+
+12. we can verify in the this pc properties section whether domain  is join or not.
+
+
+
+
+
+
+

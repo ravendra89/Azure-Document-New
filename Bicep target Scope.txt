@@ -1,0 +1,11 @@
+Target scope
+By default, the target scope is set to resourceGroup. If you deploy at the resource-group level, you don't need to set the target scope in your Bicep file.
+
+But, once we create RG, we have to define targetScope = 'subscription' 
+ 
+Because a resource group is a subscription-scoped resource, not a resource-group-scoped resource.
+ 
+it will only support- targetScope = 'subscription'
+
+
+The other allowed values are: subscription, managementGroup, tenant must be explicitly declared when deploying at those levels

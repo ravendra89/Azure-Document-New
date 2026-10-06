@@ -1,0 +1,13 @@
+
+#If your VM is not running, it will have one of two states — Stopped, or Stopped (deallocated).
+
+Azure’s Stopped State:
+When you are logged in to the operating system of an Azure VM, you can issue a command to shut down the server. This will kick you out of the OS and stop all processes,
+but will maintain the allocated hardware (including the IP addresses currently assigned). If you find the VM in the Azure console, you’ll see the state listed as “Stopped”. 
+The biggest thing you need to know about this state is that you are still being charged by the hour for this instance.
+
+Azure’s Deallocated State:
+The other way to stop your virtual machine is through Azure itself, whether that’s through the console, Powershell, or the Azure CLI.
+When you stop a VM through Azure, rather than through the OS, it goes into a “Stopped (deallocated)” state.
+This means that any non-static public IPs will be released, but you’ll also stop paying for the VM’s compute costs.
+This is a great way to save money on your Azure costs when you don’t need those VMs running, and is the state that ParkMyCloud puts your VMs in when they are parked.

@@ -1,0 +1,377 @@
+# Deploy Domain Services in Azure to replace Domain Controllers.
+
+
+# what is Active Directory (AD)?
+
+Active Directory (AD) is Microsoft's directory service for managing users, computers, and resources in a network. It's essentially a centralized database and set of services that controls who can access what in an organization.
+
+What it stores:
+
+User accounts (name, password, email, group memberships)
+Computer accounts
+Groups and organizational units (OUs)
+Security policies
+
+Core components:
+
+Component	                         Purpose
+Domain Controller	                Server that runs AD
+Domain	                            Logical boundary (e.g., company.local)
+Forest	                            Top-level container of one or more domains
+OU (Organizational Unit)	        Folder-like structure to organize objects
+Group Policy (GPO)	                Rules pushed to users/computers
+
+# What is Domain Controller (DC)
+
+DC is a server running Microsoft's Active Directory (AD) that authenticates and authorizes users, computers, and other resources in a Windows domain network.
+
+Core functions:
+
+Authentication — verifies identity (username/password, Kerberos tickets) when users log in
+Authorization — enforces who can access what resources
+Directory storage — holds the AD database (NTDS.dit) with all objects: users, groups, computers, policies
+DNS — typically runs DNS so domain names resolve within the network
+Group Policy — distributes and enforces security/configuration policies to all domain members
+Replication — syncs changes across multiple DCs for redundancy
+
+# 2. What is Azure Entra Id manage Domain Services (New Way)?
+
+Azure Entra Id manage Domain Services is:
+
+A managed domain service provided by Azure — Microsoft runs the domain controllers for you.
+
+✅ Domain join (VMs can join domain)
+✅ User login (username/password)
+✅ LDAP (apps can query users)
+✅ Kerberos / NTLM authentication
+✅ Group Policy (GPO)
+
+Key concepts:
+
+A domain is the logical boundary (e.g., company.local)
+A forest is a collection of domains sharing a schema
+LDAP is the protocol used to query the directory
+Kerberos handles ticket-based authentication
+
+So our apps and servers still work like before.
+
+# Why Do We Need Domain Services?
+
+Let’s say we are deploying apps in Azure:
+
+Without Domain Services:
+You need to:
+Create VMs
+Install AD DS
+Maintain domain controllers
+Handle replication, backup, patching
+
+That’s a lot of work.
+
+With Domain Services:
+Azure gives you:
+A ready-to-use domain
+Highly available
+Secure by default
+
+You just use it, not manage it.
+
+##############################################################
+Deployment steps:
+#############################################################
+Subscription:  Configio IT Operations
+
+# Phase 1 – Core Infrastructure Deployment:
+
+Step 1: Create Resource Groups: RG-DS-WestUS
+
+RG-IT-Ops (or existing IT-Ops RG)
+
+Step 2: Deploy West US Domain Services VNet:
+Create: vnet-ds-westus
+Address space: e.g. 10.10.0.0/16
+Subnet (required for Domain Services): 10.10.1.0/24
+
+Step 3: Deploy Domain Services In RG-DS-WestUS:
+Enable Domain Services
+Configure:
+Domain name (e.g. corp.configio.com)
+VNet: vnet-ds-westus
+Subnet: dedicated subnet
+SKU (Standard/Enterprise)
+
+Step 4: Capture Domain Services DNS IPs
+After deployment:
+Note 2 IP addresses
+Example:
+10.10.1.4
+10.10.1.5
+
+Step 5: Create Resource Groups: RG-DS-UKSouth and Deploy UK South VNet:
+In RG-DS-UKSouth:
+Create vnet-ds-uksouth
+Address space: 10.20.0.0/16
+Step 6: Deploy Ops Environment
+
+step 6: Configio IT Operations>IT-Ops resource group
+In IT-Ops RG:
+
+Create vnet-ops-westus
+Address space: 10.30.0.0/16
+Deploy:
+Ops VM (Windows Server recommended)
+NIC in vnet-ops-westus
+NAT Gateway (for outbound access)
+
+Configure Auto-Shutdown for Ops VM:
+Go to VM → Operations → Auto-shutdown
+Enable daily shutdown
+
+# Phase 2 – Networking & DNS (CRITICAL):
+
+Step 8: Configure VNet Peering (Hub = ds-westus):
+Set up peering:
+vnet-ops-westus ↔ vnet-ds-westus
+vnet-ds-uksouth ↔ vnet-ds-westus
+Configio VNet ↔ vnet-ds-westus
+UKSouth-VNet ↔ vnet-ds-westus
+✔ Enable:
+Allow forwarded traffic
+Allow virtual network access
+
+Step 9: Configure DNS on ALL VNets
+For EACH VNet:
+Go to:
+VNet → DNS Servers → Custom
+Add:
+<Domain Services IP1>
+<Domain Services IP2>
+
+Apply to following vnet as well:
+vnet-ds-westus
+vnet-ops-westus
+vnet-ds-uksouth
+Configio VNet
+UKSouth VNet
+
+Step 10: Restart VMs (Important)
+Restart Ops VM to pick up DNS changes
+
+
+# Phase 3 – Initial Validation:
+
+Step 11: Validate DNS Resolution:
+
+On Ops VM:
+
+nslookup corp.configio.com
+nslookup <domain-controller-name>
+
+Step 12: Join Ops VM to Domain:
+
+On Ops VM:
+Open:
+System Properties → Computer Name → Change
+Select:
+Domain: corp.configio.com
+Enter domain credentials
+Restart VM
+Step 13: Validate Authentication
+
+Login using:
+corp\username
+Test:
+whoami
+nltest /dsgetdc:corp.configio.com
+Step 14: Validate Group Policy
+gpupdate /force
+gpresult /r
+
+# Phase 4 – Workload Testing:
+
+Step 15: Join USWest-Test1 VM:
+Ensure:
+Connected to peered VNet
+DNS configured
+Join to domain → restart
+Test:
+Login with domain account
+Access shared resources
+Test application authentication
+
+Step 16: Join UK South Test VM:
+Connect to UKSouth-VNet
+Ensure DNS = Domain Services IP
+Join to domain
+
+Step 17: Test UK South Latency
+
+Run:
+nltest /dsgetdc:corp.configio.com
+ping <dc-ip>
+
+Observe:
+Authentication delay
+Login time
+
+# Phase 5 – Optimization Decision:
+
+Step 18: Evaluate Performance:
+If you see:
+Slow logins (>3–5 sec delay)
+Kerberos timeouts
+App auth lag
+
+Then:
+Deploy Domain Services Replica in UK South
+Add replica set in:
+vnet-ds-uksouth
+Wait for sync
+Update DNS (if new IPs provided)
+
+Phase 6 – Application Deployment:
+
+Step 19: Prepare Identity Structure:
+Create:
+OUs
+Service accounts
+Security groups
+
+Note: Before we start joining servers and deploying apps, we need to organize identities inside our domain service
+
+1. OUs (Organizational Units)
+What they are: Logical “folders” inside your domain to organize:
+Servers
+Users
+Groups
+Why you need them:
+Apply Group Policies (GPOs)
+Delegate access
+Keep environment clean
+
+What we should create:
+
+For our setup, keep it simple:
+
+corp.configio.com
+│
+├── Servers
+│    ├── WestUS
+│    └── UKSouth
+│
+├── ServiceAccounts
+│
+└── Users (optional if synced from Entra ID)
+
+Example use:
+Put Ops VM → Servers/WestUS
+Put UK VMs → Servers/UKSouth
+
+2. Service Accounts:
+What they are: Special user accounts used by applications/services instead of real people.
+
+3. Security Groups:
+
+What they are: Collections of users or machines used to assign permissions.
+
+How These 3 Work Together:
+Example:
+Create:
+OU → Servers/WestUS
+Group → SG-Server-Admins
+Service account → svc-configio-app
+Then:
+Put VM in OU
+Apply policy to OU
+Give group access to server
+App uses service account
+
+Where You Do This:
+
+Since you're using Domain Services, you’ll manage this from:
+
+Domain-joined VM (like your Ops VM)
+Tools:
+Active Directory Users and Computers (ADUC)
+
+Step 20: Deploy Configio App Servers:
+Place in appropriate VNets
+Ensure DNS configured
+
+# Do you need to create users in Domain Services?
+
+We do NOT manually create employee users in Domain Services They appear there automatically.
+If Users exist in Entra ID
+
+They will automatically appear in Domain Services
+So we must ensure:
+Password sync is enabled
+users should reset the password
+
+# What we need to create manually:
+1. OUs (Organizational Units)
+Why?
+To organize machines
+To apply policies later
+
+2. Service Accounts:
+Why?
+Apps need identities to run securely
+
+3. Security Groups:
+Why?
+To control access properly
+
+
+Step 21: Configure Applications:
+Update:
+LDAP endpoints
+Service account credentials
+Authentication methods
+
+Validate Applications:
+Login flows
+Service authentication
+Background jobs
+
+# Phase 7 – Full Migration:
+
+Step 22: Join Remaining VMs:
+
+Order:
+Non-critical VMs
+App servers
+Production systems
+
+Validate after each batch
+
+# Phase 8 – Decommission Legacy Domain Controllers:
+
+Step 23: Dependency Check
+
+Verify:
+No apps using old DC IPs
+No hardcoded LDAP paths
+DNS fully migrated
+
+Step 24: Demote Domain Controllers:
+
+Run on each DC:
+dcpromo (or Server Manager demotion)
+
+Step 25: Cleanup
+Remove:
+Old DNS entries
+AD Sites/Services remnants
+VM resources
+
+Final Validation Checklist:
+
+✅ Domain join working everywhere
+✅ DNS resolution correct
+✅ Authentication stable
+✅ Applications functional
+✅ No dependency on legacy DCs
+
+
+

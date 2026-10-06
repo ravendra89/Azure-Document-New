@@ -1,0 +1,52 @@
+
+# What is Azure Update Manager?
+
+Azure Update Manager is Microsoft's patch management service. that helps to manage and apply updates on Windows and Linux virtual machine, In Azure, on premises, and on other cloud platforms.
+
+It replaces the older Azure Automation Update Management solution.
+
+The purpose Azure Update Manager is to:
+Scan for missing OS updates
+Schedule patch installation
+Install Windows/Linux updates
+Generate compliance reports
+Manage patching for Azure, hybrid, and multi-cloud servers
+
+
+
+Using Azure Update Manager, we can directly configure and manage OS patching for Azure Virtual Machines. However, Azure Update Manager cannot directly manage patching for virtual machines or instances hosted in other cloud platforms or on-premises environments.
+
+For on-premises and multi-cloud machines, Azure Update Manager manages patching through the Azure Arc agent. These machines must first be onboarded and registered with Azure Arc, after which Azure Update Manager can communicate with them via the Azure Arc agent to assess and orchestrate OS updates.
+
+
+Workflow Explanation:
+
+Arc Agent Installed on EC2:
+
+The agent is required for Azure Arc connectivity.
+
+Agent Reports to Azure:
+
+Periodically sends OS info, like-  agent version.
+
+Azure Update Management Checks for Updates:
+
+Compares the reported Arc agent version with the latest supported version in Azure.
+
+Decision Point:
+
+If agent is outdated → Azure instructs it to upgrade.
+
+If agent is up-to-date → nothing is done.
+
+Agent Auto-Upgrades:
+
+Downloads the MSI from Microsoft endpoints.
+
+Installs new version locally.
+
+Restarts service and confirms upgrade success.
+
+Compliance Reporting:
+
+Azure Update Management marks the instance as compliant once the agent is updated and OS patches are applied.

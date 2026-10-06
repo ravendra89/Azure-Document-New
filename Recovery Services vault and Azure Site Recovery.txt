@@ -1,0 +1,96 @@
+# What is Resiliency in Azure?
+Azure Resiliency is a unified, cloud-native experience in Azure that helps organizations to discover, assess, monitor, and manage the protection and resiliency of their 
+resources across different solutions and environments. It provides a centralized view of backup, disaster recovery, replication, protection status, and 
+related information, helping identify and manage resiliency gaps.
+
+
+# Key components in Azure Backup:
+
+ Note: Azure Backup" isn't a standalone resource in the Azure portal. we reach it through Recovery Services vaults.
+ we configure and manage Azure Backup through the Recovery Services vaults. Azure Backup can also use a Backup vault for supported workloads.
+
+Azure Backup uses the following key components:
+
+1. Recovery Services vault & Backup vault: Stores backup data and recovery points, and acts as a security boundary.
+
+2. Backup policies: Define when backups run and how long data is retained.
+
+3. Backup extension or agent: A component used by Azure Backup to perform backup-related operations on the protected workload. 
+For Azure VMs, Azure Backup automatically installs and manages the required VM backup extension when backup is configured.
+
+4. Resiliency: Provides centralized backup management and monitoring capabilities.
+
+
+
+
+# what is Recovery Services vault?
+Recovery Services vault is the Azure resource that Azure Backup uses to store/manage backup data, recovery points, backup policies and perform backup operations.
+It is also used by Azure Site Recovery to manage disaster-recovery operations.
+
+ 
+ Noter: A recovery point is a point-in-time state of our data/workload that we can use to restore it.
+ 
+ 
+Note:Recovery Services vault is the actual Azure resource.
+
+Inside that vault, we can use following option:
+
+Azure Backup
+
+Azure Site Recovery 
+
+Once we cloick on "configure protection" in the Resiliency console, we will get following two option:
+
+Azure Backup
+
+Azure Site Recovery 
+ 
+ 
+ 
+Note: Once we Create Vault in the in the Resiliency console, we will get following vault type option:
+
+
+1. Recovery Services vault
+2. Backup vault
+
+
+# What is Backup vault?
+
+A Backup vault is a newer Azure resource designed specifically for Azure Backup workloads that support it.
+It is used to manage, store and secure backups data for Azure Backup workloads that support that vault type.
+
+
+
+
+# Recovery Services vault or Backup vault both are same?
+No — Recovery Services vault and Backup vault are not exactly the same, although they serve a very similar purpose.
+Both are vault types, but they support different Azure Backup/recovery scenarios.
+
+1. Recovery Services vault Supported datasources: Recovery Services vault - Backup + Site Recovery
+
+Azure virtual machines
+SQL in Azure VM
+Azure Files (Azure Storage)
+SAP HANA in Azure VM
+SAP ASE (Sybase) in Azure VM
+Azure Backup Server
+Azure Backup Agent
+DPM
+
+2. Backup vault Supported datasources:
+ Azure Disks
+ Azure Blobs (Azure Storage)
+ Azure Database for PostgreSQL servers
+ Kubernetes Services
+ Azure PostgreSQL flexible server/elastic cluster
+ Azure Database for MySQL flexible servers (Preview)
+ Elastic SAN Volumes
+ Azure Data Lake Storage
+ Azure Cosmos DB (Preview)
+ 
+ 
+ # What is Azure Site Recovery?
+Azure Site Recovery (ASR) is an Azure disaster recovery service that replicates workloads to a secondary location and helps keep applications available by enabling failover
+ when the primary location becomes unavailable.
+ 
+ Note: There is no separate Site Recovery service in azure portal. Site Recovery is a feature inside the Recovery Services vault. we enable it from the vault's menu.

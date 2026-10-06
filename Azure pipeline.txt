@@ -1,0 +1,1 @@
+In Azure pipeline, every new subscription is required to create new service connection.

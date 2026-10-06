@@ -1,0 +1,37 @@
+What is difference between parameter, variable and Resource property value in the bicep file?
+
+
+Parameter = a value that is expected to come from outside the Bicep file at deployment time.
+Parameters is allow to define external inputs to your Bicep file, making it reusable across different deployments.
+
+Variable = a value that is defined inside the Bicep file and does not need to be passed in from outside.
+Variables are used to store values within the same Bicep file, enhancing readability and maintainability by allowing you to reference and reuse those values
+throughout our template.
+
+Resource property value = a value assigned directly to a resource/property; it doesn't need to be a parameter or variable at all.
+
+
+Note-1: If I pass the values directly as variables in the postdeployment.bicep file, then no need to pass and define the parameter for these value in any of the bicep file or parameterstemplate.bicepparam file.
+
+ 
+Note-2: In the Bicep parameter, Parameter name and value both are different, we can define different name for the value.
+
+For example,  .bicepparam could contain:
+
+param AppServiceCloudflareCNameRecordName = 'my-cname.example.com'
+
+we can then use the parameter under a different resource property name:
+
+resource example '...' = {
+  properties: {
+    cnameRecordName: AppServiceCloudflareCNameRecordName
+  }
+}
+
+Here cnameRecordName is not another parameter. It is simply the property name expected by the resource/API.
+
+So this:
+
+param cnameRecordName string
+
+

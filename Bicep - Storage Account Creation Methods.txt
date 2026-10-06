@@ -1,0 +1,75 @@
+Storage Account Creation Methods
+1. Resource Group Already Exists — Resource Group-Level Deployment
+If the Resource Group already exists, we can deploy the Storage Account directly to that Resource Group using:
+
+az deployment group create \
+  --resource-group my-storage-rg \
+  --template-file storage.bicep
+
+Here, the Resource Group is specified in the Azure CLI command.
+
+Because the deployment itself is already scoped to the Resource Group, we normally do not need to specify scope on the Storage Account resource.
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
+  name: 'mystorageaccount'
+  location: 'eastus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+The deployment scope is:
+
+az deployment group create
+        ↓
+my-storage-rg
+        ↓
+Storage Account
+
+2. Subscription-Level Deployment — Modular Approach
+If we deploy the main Bicep file at the subscription level, we can use a separate module for the Storage Account.
+
+The main.bicep can create or reference the Resource Group and deploy the Storage Account module to that Resource Group.
+
+targetScope = 'subscription'
+
+resource rg 'Microsoft.Resources/resourceGroups@2025-04-01' = {
+  name: 'my-storage-rg'
+  location: 'eastus'
+}
+
+module storage './storage.bicep' = {
+  name: 'storageDeployment'
+  scope: rg
+}
+
+The Storage Account is defined inside the separate storage.bicep module:
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
+  name: 'mystorageaccount'
+  location: 'eastus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+Here, the important point is that scope: rg is defined on the module, not on the Storage Account resource.
+
+The deployment scope is:
+
+az deployment sub create
+        ↓
+Subscription
+        ↓
+main.bicep
+        ↓
+Resource Group
+        ↓
+Storage Account module
+        ↓
+Storage Account
+
+
+# Note: Most normal infrastructure resources are Resource Group-scoped. The deployment method determines the scope from which you deploy them. Bicep modules let a higher-level deployment target a different scope when the resource supports that scope.

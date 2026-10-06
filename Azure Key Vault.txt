@@ -1,0 +1,12 @@
+# Azure Key Vault
+This is a security service.
+
+It is used to store and manage:
+
+Secrets (passwords, connection strings)
+Encryption keys
+Certificates
+
+Think of it as a secure locker for sensitive information.
+
+example: storing credential for sql DB

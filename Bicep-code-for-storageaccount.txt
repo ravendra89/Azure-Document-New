@@ -1,0 +1,202 @@
+metadata description = 'Creates a storage account'
+
+@description('The prefix to use for the storage account name.')
+@minLength(3)
+@maxLength(11)
+param storagePrefix string
+
+param storageSKU string = 'Standard_LRS'
+param location string = resourceGroup().location
+
+var uniqueStorageName = '${storagePrefix}${uniqueString(resourceGroup().id)}'
+
+resource StorageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' = {
+  name: uniqueStorageName
+  location: location
+  sku: {
+    name: storageSKU
+  }
+  kind: 'StorageV2'
+  properties: {
+    supportsHttpsTrafficOnly: true
+  }
+}
+
+
+#########################################################################################################################
+
+1. Metadata:
+
+metadata description = 'Creates a storage account and a web app'
+
+>> Just a human-readable label describing what the template does — no functional effect.
+
+2. storagePrefix — a string you supply (3–11 chars) that becomes the start of the storage account name. The decorators @minLength and @maxLength enforce length validation.
+
+Note: storagePrefix is just a name we chose — we can name it anything we want.
+
+>> param storagePrefix string
+
+Note: if We defined parameter mentioned above, then we have to pass the storageprefix value during the deployment.
+
+But we can use parameter mentioned below to ignore above steps:
+
+>> param storagePrefix string = 'mystorageaccount'
+
+Note: No need to define storageprefix value during the deployment.
+
+3. var uniqueStorageName = '${storagePrefix}${uniqueString(resourceGroup().id)}'
+
+>> what is uniqueString()?
+
+
+uniqueString() is a hashing function.
+
+It is used to make the storage account name globally unique.
+
+It takes any input → runs it through a hash algorithm → always produces a 13-character output.
+
+Note: What I meant by "any input":
+
+uniqueString() is flexible — it can accept any string as input, it's not limited to only resourceGroup().id.
+
+
+// all of these are valid inputs
+
+uniqueString(resourceGroup().id) - resource group ID
+uniqueString(subscription().id)  - subscription ID
+uniqueString('hello')            - plain string
+uniqueString(deployment().name)  - deployment name
+
+>> But why we choose resourceGroup().id:
+
+Just because it can take any input doesn't mean all inputs are good.
+
+resourceGroup().id is perfect because its id are unique.
+
+# But we can pass a plain string:
+
+bicep
+uniqueString('hello')  // ✅ works but BAD choice
+
+Problem — everyone who uses 'hello' as input gets the exact same hash:
+
+Person 1 → uniqueString('hello') → '5g7k2j9xqp3f1'
+Person 2 → uniqueString('hello') → '5g7k2j9xqp3f1'  // same!
+Person 3 → uniqueString('hello') → '5g7k2j9xqp3f1'  // same!
+
+# how uniqueString('hello') generates a value step by step:
+
+Step 1 — Take the input string:
+
+'hello'
+
+Step 2 — Convert each character to its ASCII byte value:
+
+h  →  104
+e  →  101
+l  →  108
+l  →  108
+o  →  111
+
+Step 3 — Feed those bytes into SHA-256 algorithm:
+
+[104, 101, 108, 108, 111]
+          ↓
+       SHA-256
+          ↓
+2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+(long 64 character hex value)
+
+Step 4 — Azure takes that result and converts to lowercase alphanumeric:
+
+2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+          ↓
+Convert to base36 (letters + numbers only)
+          ↓
+'5g7k2j9xqp3f1'
+
+Step 5 — Take only first 13 characters:
+
+'5g7k2j9xqp3f1'  ← final output
+
+Visual flow:
+
+'hello'
+   ↓
+ASCII bytes [104, 101, 108, 108, 111]
+   ↓
+SHA-256 algorithm
+   ↓
+64 character hex value
+   ↓
+Convert to alphanumeric
+   ↓
+Take first 13 chars
+   ↓
+'5g7k2j9xqp3f1'
+
+
+In short: 'hello' gets converted to bytes → SHA-256 runs on those bytes → result is converted to alphanumeric → first 13 characters become the final output.
+
+
+
+# How uniqueString() gets the hash value internally:
+
+>> uniqueString(resourceGroup().id)
+
+Step 1 — First resourceGroup().id runs:
+
+ARM fetches resource group ID
+→ '/subscriptions/12345678/resourceGroups/myRG'
+
+Step 2 — That value is passed into uniqueString():
+
+uniqueString('/subscriptions/12345678/resourceGroups/myRG')
+
+Step 3 — uniqueString() converts the string into bytes:
+
+'/subscriptions/12345678/resourceGroups/myRG'
+→ [47, 115, 117, 98, 115, 99, 114, 105, 112...]  (byte values)
+
+Step 4 — SHA-256 algorithm runs on those bytes:
+
+[47, 115, 117, 98...]
+→ SHA-256 →
+→ large number: "a3f8b2c9d4e1f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1"
+
+Step 5 — Azure takes first 13 characters and converts to lowercase alphanumeric:
+
+"a3f8b2c9d4e1f" → "7g5k3j2xqp8f1"
+
+In short: uniqueString() internally uses SHA-256 hashing algorithm on the input string to generate the 13-character output. Azure/Bicep handles all of this automatically.
+
+# Example use case of uniqueString()
+
+1. Storage Account Names (most common)
+
+param storageAccountName string = 'mystorageaccount'
+
+// Storage account names must be globally unique
+
+var storageName = '${storageAccountName}${uniqueString(resourceGroup().id)}'
+
+
+2. Key Vault Names
+
+// Key Vault names must be globally unique
+var keyVaultName = 'kv-${uniqueString(resourceGroup().id)}'
+
+
+3. Azure Container Registry Name
+
+param ACRName string = 'myacr'
+
+// ACR names must be globally unique
+var acrName = '${ACRName}${uniqueString(resourceGroup().id)}'
+
+
+4. Azure Function App Names
+
+// Function app names must be globally unique
+var functionAppName = 'func-${uniqueString(resourceGroup().id)}'

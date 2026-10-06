@@ -1,0 +1,106 @@
+We cannot create VNet peering if the IP address ranges overlap.
+Why?
+When two VNets have overlapping IP address spaces (for example, both use 10.0.0.0/16), Azure cannot determine where to route the traffic. This causes routing conflicts, so peering is blocked by design.
+
+Not allowed (overlapping):
+VNet A: 10.0.0.0/16
+VNet B: 10.0.1.0/24 (falls within 10.0.0.0/16)
+
+Allowed (non-overlapping):
+VNet A: 10.0.0.0/16
+VNet B: 10.1.0.0/16
+
+Example: 
+
+Not allowed (overlapping):
+VNet A: 10.0.0.0/16
+VNet B: 10.0.1.0/24 (falls within 10.0.0.0/16)
+But How:
+1. First, understand an IP address
+An IPv4 address has 4 numbers, called octets:
+10 . 0 . 0 . 0
+↑    ↑   ↑   ↑
+1    2   3   4
+Each number can be from 0 to 255.
+2. What does /16 mean?
+An IPv4 address has 32 bits.
+There are 4 octets, and each octet has 8 bits:
+8 bits + 8 bits + 8 bits + 8 bits
+  8       8       8       8
+       = 32 bits
+When we say:
+10.0.0.0/16
+the /16 means:
+The first 16 bits are fixed as the network.
+Since every octet is 8 bits:
+8 + 8 = 16
+Therefore, the first two octets are fixed:
+10 . 0 . ? . ?
+↑    ↑    
+fixed fixed
+The last two octets can change:
+10.0.0.0
+10.0.0.1
+10.0.0.2
+...
+10.0.1.0
+10.0.1.1
+...
+10.0.255.255
+Therefore:
+10.0.0.0/16
+covers:
+10.0.0.0 → 10.0.255.255
+
+3. Now look at /24
+Consider:
+10.0.1.0/24
+/24 means the first 24 bits are fixed.
+That's:
+8 + 8 + 8 = 24
+So the first three octets are fixed:
+10 . 0 . 1 . ?
+↑    ↑   ↑  
+fixed fixed fixed
+Only the last octet can change:
+10.0.1.0
+10.0.1.1
+10.0.1.2
+...
+10.0.1.255
+Therefore:
+10.0.1.0/24
+covers:
+10.0.1.0 → 10.0.1.255
+
+4. Now compare them
+VNet A:
+10.0.0.0/16
+means:
+10.0.0.0
+    ↓
+10.0.255.255
+It allows the third and fourth numbers to change:
+10.0.[0-255].[0-255]
+So it includes:
+10.0.0.0/24
+10.0.1.0/24
+10.0.2.0/24
+10.0.3.0/24
+...
+10.0.255.0/24
+Now VNet B is:
+10.0.1.0/24
+which means:
+10.0.1.[0-255]
+But look:
+VNet A: 10.0.[0-255].[0-255]
+VNet B: 10.0.1.[0-255]
+Since 1 is included in [0-255], VNet B is inside VNet A.
+That's why they overlap.
+
+
+What we can do if they overlap:
+
+Modify the address space of one VNet (if possible)
+Use a different CIDR range for new VNets

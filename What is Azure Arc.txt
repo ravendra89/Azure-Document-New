@@ -1,0 +1,159 @@
+# What is Azure Arc?
+
+Azure Arc is a Microsoft service that extends Azure management to resources running outside Azure.
+Azure Arc is used to manage resources that are not running in Azure.
+
+
+
+It allows you to manage:
+
+On-premises servers
+AWS EC2 instances
+Google Cloud VMs
+Virtual machines in other clouds
+
+After installing the Azure Arc agent, these machines appear in the Azure portal almost like native Azure VMs.
+
+"Azure Arc is used to onboard servers that are outside Azure into Azure management. Once a server is Arc-enabled, Azure services like Azure Update Manager, Azure Monitor, Azure Policy, and Microsoft Defender for Cloud can manage it. For example, Azure Update Manager uses the Azure Arc connection to scan, schedule, and install OS patches on an AWS EC2 or on-premises Windows/Linux server."
+
+Example
+
+Suppose your Windows Server is running in AWS.
+
+AWS EC2 Windows Server
+         │
+ Install Azure Arc Agent
+         │
+         ▼
+ Becomes Arc-enabled server
+         │
+ ┌──────────────────────────────────┐
+ │ Azure Update Manager             │ → Install Windows patches
+ │ Azure Monitor                    │ → Collect logs & metrics
+ │ Azure Policy                     │ → Check compliance
+ │ Microsoft Defender for Cloud     │ → Security assessment
+ └──────────────────────────────────┘
+ 
+ 
+# What each service does
+1. Azure Update Manager
+Scans for Windows/Linux updates
+Schedules patch installation
+Reports patch compliance
+2. Azure Monitor
+Collects CPU, memory, disk, and network metrics
+Collects event logs and syslogs
+Creates alerts (for example, CPU > 90%)
+3. Azure Policy
+
+Enforces organizational rules.
+
+Examples:
+
+Ensure antivirus is installed.
+Ensure a specific Windows service is running.
+Ensure required software is installed.
+Audit machines that don't meet company standards.
+4. Microsoft Defender for Cloud
+
+Provides security features such as:
+
+Vulnerability assessment
+Security recommendations
+Threat detection
+Secure score
+Compliance reporting
+
+Note: So patching is only one benefit. Azure Arc's real purpose is to make external servers manageable by the Azure ecosystem, providing a single management plane across Azure, AWS, GCP, and on-premises environments.
+
+
+# Why do we need Azure Arc?
+
+Normally, Azure services can directly manage only Azure resources.
+
+Suppose you have an EC2 VM running in AWS.
+
+Without Azure Arc:
+
+Azure cannot inventory it.
+Azure cannot apply policies.
+Azure cannot manage updates.
+Azure cannot monitor it using Azure management services.
+
+With Azure Arc:
+
+The EC2 VM securely connects to Azure.
+Azure can manage it through the Arc agent.
+It becomes an Arc-enabled server.
+
+
+> Azure can directly manage only the Azure VMs.
+
+After installing the Azure Arc agent on the AWS and on-premises servers, they also appear in Azure, allowing you to manage them from a single place.
+
+
+
+# Azure Arc agent:
+
+The Azure Arc agent is software that you install on a server to connect it to Azure.
+
+The Azure Arc agent is software installed on Windows or Linux servers running outside Azure (or in hybrid environments). It securely connects those servers to Azure, registers them as Arc-enabled servers, receives management instructions from Azure services, executes those instructions locally, and reports status back to Azure. This enables services like Azure Update Manager, Azure Monitor, Azure Policy, and Microsoft Defender for Cloud to manage external servers from the Azure portal.
+
+# What does the Azure Arc agent do?
+
+The agent has several responsibilities:
+
+1. Registers the server with Azure
+2. Maintains a secure connection
+3. Receives commands from Azure services
+4. Reports information back to Azure
+
+# Does the Azure Arc agent install patches by itself?
+
+No.
+
+The agent does not decide what to install.
+
+Instead:
+
+Azure Update Manager decides what patches are needed and when to install them.
+The Azure Arc agent executes those instructions on the server and reports the outcome.
+
+
+# What is an Arc-enabled server?
+
+An Arc-enabled server is any non-Azure server that has been registered with Azure Arc.
+any server outside Azure that has been registered with Azure Arc for management.
+
+Examples include:
+
+An on-premises Windows Server
+An on-premises Linux server
+An AWS EC2 instance
+A Google Cloud VM
+A VMware virtual machine
+
+Once registered, Azure can manage it using services such as:
+
+Azure Update Manager
+Azure Policy
+Azure Monitor
+Microsoft Defender for Cloud
+Azure Machine Configuration
+
+
+# Azure Arc is not just for servers. It extends Azure management to different types of resources running outside Azure, including:
+
+Servers (Windows and Linux)
+Kubernetes clusters (such as AWS EKS)
+SQL Server instances
+
+Its main goal is to let you manage these resources from Azure while they continue running in their original environment (AWS, on-premises, Google Cloud, etc.).
+
+| Resource              | Supported by Azure Arc? | Typical Azure services used               |
+| --------------------- | ----------------------- | ----------------------------------------- |
+| AWS EC2 Windows       | ✅ Yes                   | Update Manager, Monitor, Policy, Defender |
+| AWS EC2 Linux         | ✅ Yes                   | Update Manager, Monitor, Policy, Defender |
+| AWS EKS               | ✅ Yes                   | Policy, Monitor, Defender, GitOps         |
+| SQL Server on AWS EC2 | ✅ Yes                   | SQL Server management, Monitor, Defender  |
+| On-premises Servers   | ✅ Yes                   | Update Manager, Monitor, Policy, Defender |

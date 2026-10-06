@@ -1,0 +1,29 @@
+What is difference between  Azure SQL Database, Azure SQL Server (logical), and SQL Virtual Machine in Azure?
+
+1. Azure SQL Database (fully managed PaaS)
+
+ A fully managed relational database service. we only manage the database itself; Microsoft manages the OS, SQL Server engine, patching, backups, HA.
+ 
+ No access to the underlying server or OS.
+
+Use case: Applications that need a scalable database without worrying about patching, backups, or high availability.
+
+2. Azure SQL Server (Logical Server)
+
+It is Not an actual server — it's a logical administrative container for grouping Azure SQL Databases and Elastic Pools
+Defines the region, admin credentials, firewall rules, and auditing settings shared across databases under it
+You can't connect to it directly; you connect to individual databases hosted on it
+
+Think of it as a namespace/management boundary, not a compute resource
+
+Use case: Organizing multiple databases under one logical server, simplifying management and security
+
+Note: When we create an Azure SQL Database, we must select an existing Azure SQL Logical Server or create a new one.
+
+3. SQL Virtual Machine (SQL VM)
+
+Type: Infrastructure as a Service (IaaS)
+
+It is a Virtual machine with SQL Server installed . we manage the OS, SQL Server, backups, patching, and high availability if needed.
+
+Use case: Applications requiring full control over SQL Server features, custom configurations, or the ability to run older SQL Server versions.

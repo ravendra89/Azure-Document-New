@@ -1,0 +1,9 @@
+In Azure, the terms VPN Gateway and Virtual Network Gateway are closely related but not exactly the same. 
+Virtual Network Gateway
+A Virtual Network Gateway is a general term for the gateway that provides connectivity between your Azure Virtual Network (VNet) and other networks.
+It can be used for:
+VPN Gateway (IPsec/IKE-based VPNs)
+ExpressRoute Gateway (private, dedicated connectivity)
+So, VPN Gateway is a type of Virtual Network Gateway.
+ 
+In Azure VPN service is called Azure VPN Gateway

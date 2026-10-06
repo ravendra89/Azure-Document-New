@@ -1,0 +1,134 @@
+// ============================================================
+// Parameters
+// ============================================================
+
+@description('Name for the Network Manager resource.')
+param networkManagerName string = 'acctest0001-nm'
+ 
+@description('Name for the IPAM Pool resource.')
+param ipamPoolName string = 'acctest0001-pool'
+ 
+@description('Name for the Virtual Network resource.')
+param vnetName string = 'acctest0001-vnet'
+ 
+@description('Azure region for all resources.')
+param location string = 'westeurope'
+ 
+@description('IPAM pool address prefix.')
+param ipamPoolPrefix string = '10.0.0.0/24'
+ 
+@description('Number of IP addresses to allocate from IPAM pool for the VNet.')
+param vnetIpCount string = '100'
+
+@description('Subnet definitions. Each entry requires a name and prefix length.') //It will create 3 subnets, because the subnets parameter array has 3 elements.
+param subnets array = [
+  {
+    name: 'default'
+    numberOfIpAddresses: '32'
+  }
+  {
+    name: 'appSubnet'
+    numberOfIpAddresses: '32'
+  }
+  {
+    name: 'dataSubnet'
+    numberOfIpAddresses: '16'
+  }
+]
+
+// numberofipaddress represent the Usable IPs. like- cidr = /29, numberofipaddress = 8, usable ips = 3
+// Because Azure reserves 5 IP addresses in every subnet, no matter the size. That leaves you with 8 - 5 = 3 usable IPs.
+// The VNet itself does not reserve any IPs.
+
+//The VNet is just a container that holds a range, for example 10.0.0.0/24. It doesn't consume any IPs on its own.
+
+// The 5 reservations happen only when you create a subnet inside that VNet. Each subnet takes a slice from the VNet range and reserves 5 within that slice.//
+
+// ============================================================
+// Network Manager
+// ============================================================
+
+resource networkManager 'Microsoft.Network/networkManagers@2024-05-01' = {
+  name: networkManagerName
+  location: location
+  properties: {
+    description: ''
+    networkManagerScopeAccesses: []
+    networkManagerScopes: {
+      managementGroups: []
+      subscriptions: [
+        '/subscriptions/${subscription().subscriptionId}'
+      ]
+    }
+  }
+}
+
+// ============================================================
+// IPAM Pool
+// ============================================================
+
+resource ipamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+  name: ipamPoolName
+  location: location
+  parent: networkManager
+  properties: {
+    addressPrefixes: [
+      ipamPoolPrefix
+    ]
+    description: 'Test description.'
+    displayName: 'testDisplayName'
+    parentPoolName: ''
+  }
+}
+
+// ============================================================
+// Virtual Network (with IPAM allocation)
+// ============================================================
+
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+  name: vnetName
+  location: location
+  properties: {
+    addressSpace: {
+      ipamPoolPrefixAllocations: [
+        {
+          numberOfIpAddresses: vnetIpCount
+          pool: {
+            id: ipamPool.id
+          }
+        }
+      ]
+    }
+  }
+}
+
+// ============================================================
+// Subnets (deployed sequentially via index to avoid conflicts)
+// ============================================================
+
+@batchSize(1) //@batchSize(1) forces the loop to deploy one subnet at a time, sequentially.
+resource subnetResources 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = [
+  for (subnet, i) in subnets: {
+    name: subnet.name // name: subnet.name  // picks the 'name' field from each array element
+    parent: vnet
+    properties: {
+      ipamPoolPrefixAllocations: [
+        {
+          numberOfIpAddresses: subnet.numberOfIpAddresses
+          pool: {
+            id: ipamPool.id
+          }
+        }
+      ]
+    }
+  }
+]
+
+// ============================================================
+// Outputs
+// ============================================================
+
+output networkManagerId string = networkManager.id
+output ipamPoolId string = ipamPool.id
+output vnetId string = vnet.id
+output subnetIds array = [for i in range(0, length(subnets)): subnetResources[i].id]
